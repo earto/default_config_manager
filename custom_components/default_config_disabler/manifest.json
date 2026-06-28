@@ -7,7 +7,6 @@
   "codeowners": ["@earto"],
   "config_flow": true,
   "iot_class": "local_push",
-  "integration_type": "helper",
   "dependencies": ["recorder"],
   "requirements": []
 }
