@@ -34,6 +34,11 @@ def _delete_restart_issue(hass: HomeAssistant) -> None:
     ir.async_delete_issue(hass, DOMAIN, "restart_required")
 
 
+def _filter_disabled_list(disabled: list[str], manifest: list[str]) -> list[str]:
+    """Return only disabled items that still exist in the manifest."""
+    return [c for c in disabled if c in manifest]
+
+
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Default Config Manager integration."""
     _LOGGER.debug("Setting up Default Config Manager")
@@ -46,12 +51,13 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     components = await hass.async_add_executor_job(get_default_config_components)
     _LOGGER.debug("Got default_config dependencies: %s", components)
 
-    # Collect all disabled components from config entries
+    # Collect and validate disabled components from config entries
     disabled_components: list[str] = []
     for entry in hass.config_entries.async_entries(DOMAIN):
-        disabled_components.extend(entry.options.get(CONF_COMPONENTS_TO_DISABLE, []))
+        raw = entry.options.get(CONF_COMPONENTS_TO_DISABLE, [])
+        disabled_components.extend(_filter_disabled_list(raw, components))
 
-    _LOGGER.debug("Disabled components: %s", disabled_components)
+    _LOGGER.debug("Validated disabled components: %s", disabled_components)
 
     # Filter out disabled components
     enabled_components = [c for c in components if c not in disabled_components]
@@ -88,5 +94,21 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Handle options update."""
+    _LOGGER.debug("Validating updated disabled components")
+
+    # Re-read manifest to validate against the current HA version
+    components = await hass.async_add_executor_job(get_default_config_components)
+
+    raw = entry.options.get(CONF_COMPONENTS_TO_DISABLE, [])
+    cleaned = _filter_disabled_list(raw, components)
+
+    # If invalid entries were removed, update the config entry
+    if cleaned != raw:
+        _LOGGER.debug("Pruned invalid disabled components: %s", set(raw) - set(cleaned))
+        hass.config_entries.async_update_entry(
+            entry,
+            options={CONF_COMPONENTS_TO_DISABLE: cleaned},
+        )
+
     _LOGGER.warning("Updated disabled components. Restart Home Assistant to apply changes")
     _create_restart_issue(hass)
