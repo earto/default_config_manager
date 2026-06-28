@@ -1,14 +1,14 @@
 {
   "domain": "default_config_manager",
   "name": "Default Config Manager",
-  "codeowners": [
-    "@earto"
-  ],
-  "config_flow": true,
-  "dependencies": ["recorder"],
+  "version": "2.0.0",
   "documentation": "https://github.com/earto/default_config_manager",
-  "iot_class": "local_push",
   "issue_tracker": "https://github.com/earto/default_config_manager/issues",
-  "requirements": [],
-  "version": "2.0.0"
+  "codeowners": ["@earto"],
+  "config_flow": true,
+  "iot_class": "local_push",
+  "integration_type": "helper",
+  "dependencies": ["recorder"],
+  "requirements": []
 }
+
