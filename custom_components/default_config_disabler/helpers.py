@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 import logging
+from pathlib import Path
 
 import homeassistant.components as ha_components
 
-from .const import DOMAIN
+from .const import DOMAIN, LOGGER_PREFIX
 
 _LOGGER = logging.getLogger(__name__)
 
