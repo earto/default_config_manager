@@ -1,4 +1,4 @@
-"""The Default Config Disabler integration."""
+"""The Default Config Manager integration."""
 
 from __future__ import annotations
 
