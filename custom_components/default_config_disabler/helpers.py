@@ -27,7 +27,8 @@ def get_default_config_components() -> list[str]:
             return data.get("dependencies", [])
 
     except Exception as err:
-        _LOGGER.error(
-            "Failed to load default_config manifest for %s: %s", DOMAIN, err
+    _LOGGER.error("%s: Failed to load default_config manifest: %s", LOGGER_PREFIX, err)
+
+
         )
         return []
