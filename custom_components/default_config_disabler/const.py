@@ -1,4 +1,4 @@
-"""Constants for the Default Config Disabler integration."""
+"""Constants for the Default Config Manager integration."""
 
 from typing import Final
 
