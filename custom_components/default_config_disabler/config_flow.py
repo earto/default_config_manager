@@ -1,7 +1,6 @@
-"""Config flow for Default Config Disabler integration."""
+"""Config flow for Default Config Manager integration."""
 
 from __future__ import annotations
-
 from typing import Any
 
 import voluptuous as vol
@@ -16,7 +15,7 @@ from .helpers import get_default_config_components
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for Default Config Disabler."""
+    """Handle the config flow for Default Config Manager."""
 
     VERSION = 1
 
@@ -42,10 +41,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
 class OptionsFlowHandler(config_entries.OptionsFlow):
-    """Default Config Disabler options flow."""
+    """Options flow for Default Config Manager."""
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize options flow."""
+        self.config_entry = config_entry
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
@@ -57,10 +57,14 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         components = await self.hass.async_add_executor_job(
             get_default_config_components
         )
+
         selected_components = self.config_entry.options.get(
             CONF_COMPONENTS_TO_DISABLE, []
         )
+
+        # Filter out components that no longer exist
         selected_components = [c for c in selected_components if c in components]
+
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema(
