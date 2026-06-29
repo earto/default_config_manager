@@ -1,4 +1,4 @@
-"""Default Config Manager integration."""
+"""__init__.py for Default Config Manager."""
 
 from __future__ import annotations
 
