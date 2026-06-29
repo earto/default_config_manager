@@ -1,4 +1,4 @@
-"""Config flow for Default Config Manager."""
+"""config_flow.py for Default Config Manager."""
 
 from __future__ import annotations
 
