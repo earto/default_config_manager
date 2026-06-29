@@ -20,6 +20,9 @@ _LOGGER = logging.getLogger(LOGGER_PREFIX)
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Default Config Manager from a config entry."""
 
+    # Reload on options change
+    entry.async_on_unload(entry.add_update_listener(update_listener))
+
     # Store YAML detection result
     yaml_config = hass.data.setdefault(DOMAIN, {}).get("yaml_config", False)
 
@@ -40,13 +43,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if advanced_mode:
         for component in static_integrations:
             if component in disabled_components:
-                # Disable component
                 _LOGGER.info("Disabling default_config component: %s", component)
-
-                # Clear any previous issue for this component
                 clear_integration_change_issue(hass, component)
 
-                # Correct modern unload API
                 integration = await async_get_integration(hass, component)
                 result = await integration.async_unload()
 
@@ -54,16 +53,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     create_integration_change_issue(hass, component, "disabled")
                 else:
                     _LOGGER.warning("Failed to unload component: %s", component)
-
             else:
-                # Ensure component is enabled
                 if component not in hass.config.components:
                     _LOGGER.info("Enabling default_config component: %s", component)
-
-                    # Clear any previous issue for this component
                     clear_integration_change_issue(hass, component)
 
-                    # Setup component
                     result = await async_setup_component(hass, component, {})
 
                     if result:
@@ -78,3 +72,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload Default Config Manager config entry."""
     _LOGGER.info("Unloading Default Config Manager")
     return True
+
+
+async def update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Handle options update."""
