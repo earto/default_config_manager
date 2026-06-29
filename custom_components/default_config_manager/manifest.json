@@ -1,14 +1,13 @@
 {
-  "domain": "default_config_disabler",
-  "name": "Default Config Disabler",
-  "codeowners": [
-    "@tronikos"
-  ],
+  "domain": "default_config_manager",
+  "name": "Default Config Manager",
+  "version": "2.0.0",
+  "documentation": "https://github.com/earto/default_config_manager",
+  "issue_tracker": "https://github.com/earto/default_config_manager/issues",
+  "codeowners": ["@earto"],
   "config_flow": true,
-  "dependencies": ["recorder"],
-  "documentation": "https://github.com/tronikos/default_config_disabler",
   "iot_class": "local_push",
-  "issue_tracker": "https://github.com/tronikos/default_config_disabler/issues",
-  "requirements": [],
-  "version": "0.0.0"
+  "dependencies": ["recorder"],
+  "requirements": []
 }
+
