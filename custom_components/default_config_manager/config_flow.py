@@ -5,9 +5,9 @@ from __future__ import annotations
 from typing import Any
 
 import voluptuous as vol
+import homeassistant.helpers.config_validation as cv
 
 from homeassistant import config_entries
-from homeassistant.core import HomeAssistant
 
 from .const import (
     DOMAIN,
@@ -53,7 +53,7 @@ class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             {
                 vol.Optional(CONF_ADVANCED_MODE, default=False): bool,
                 vol.Optional(CONF_COMPONENTS_TO_DISABLE, default=[]): vol.All(
-                    vol.UniqueList(),
+                    cv.ensure_list,
                     [vol.In(static_integrations)],
                 ),
             }
