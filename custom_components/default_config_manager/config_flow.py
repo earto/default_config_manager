@@ -17,6 +17,9 @@ from .const import (
 )
 from .helpers import get_static_integrations
 
+import logging
+_LOGGER = logging.getLogger("DCM")
+
 
 class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Default Config Manager."""
@@ -25,8 +28,10 @@ class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None):
         """Handle the initial step."""
+        _LOGGER.debug("DCM: config_flow async_step_user called, user_input=%s", user_input)
 
         if user_input is not None:
+            _LOGGER.debug("DCM: Creating config entry with options=%s", user_input)
             return self.async_create_entry(
                 title=NAME,
                 data={},
@@ -42,8 +47,10 @@ class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def _show_form(self):
         """Show the configuration form."""
+        _LOGGER.debug("DCM: config_flow _show_form called")
 
         static_integrations = await get_static_integrations(self.hass)
+        _LOGGER.debug("DCM: static_integrations=%s", static_integrations)
 
         schema = vol.Schema(
             {
