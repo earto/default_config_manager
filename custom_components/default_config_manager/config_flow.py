@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import Any
 
 import voluptuous as vol
-import homeassistant.helpers.config_validation as cv
 
 from homeassistant import config_entries
 
@@ -15,10 +14,7 @@ from .const import (
     CONF_ADVANCED_MODE,
     CONF_COMPONENTS_TO_DISABLE,
 )
-from .helpers import (
-    get_static_integrations,
-    get_conditional_integrations,
-)
+from .helpers import get_static_integrations
 
 
 class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
@@ -46,14 +42,12 @@ class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     async def _show_form(self):
         """Show the configuration form."""
 
-        # Load static integrations dynamically
         static_integrations = await get_static_integrations(self.hass)
 
         schema = vol.Schema(
             {
                 vol.Optional(CONF_ADVANCED_MODE, default=False): bool,
                 vol.Optional(CONF_COMPONENTS_TO_DISABLE, default=[]): vol.All(
-                    cv.ensure_list,
                     [vol.In(static_integrations)],
                 ),
             }
