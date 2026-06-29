@@ -1,8 +1,7 @@
-"""Constants for the Default Config Manager integration."""
+"""Constants for Default Config Manager"""
 
-from typing import Final
+DOMAIN = "default_config_manager"
+LOGGER_PREFIX = "DefaultConfigManager"
 
-DOMAIN: Final = "default_config_manager"
-NAME: Final = "Default Config Manager"
-LOGGER_PREFIX: Final = "DefaultConfigManager"
-CONF_COMPONENTS_TO_DISABLE: Final = "components_to_disable"
+CONF_ADVANCED_MODE = "advanced_mode"
+CONF_COMPONENTS_TO_DISABLE = "components_to_disable"
