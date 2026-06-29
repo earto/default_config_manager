@@ -1,43 +1,45 @@
-"""Repairs platform."""
+"""Repairs for Default Config Manager."""
 
 from __future__ import annotations
 
-from typing import Any
-
-import voluptuous as vol
-
-from homeassistant import data_entry_flow
-from homeassistant.components.repairs import RepairsFlow
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import issue_registry as ir
+
+from .const import DOMAIN
 
 
-class RestartRequiredFixFlow(RepairsFlow):
-    """Handler for an issue fixing flow."""
-
-    async def async_step_init(
-        self, user_input: dict[str, str] | None = None
-    ) -> data_entry_flow.FlowResult:
-        """Handle the first step of a fix flow."""
-
-        return await self.async_step_confirm()
-
-    async def async_step_confirm(
-        self, user_input: dict[str, str] | None = None
-    ) -> data_entry_flow.FlowResult:
-        """Handle the confirm step of a fix flow."""
-        if user_input is not None:
-            await self.hass.services.async_call("homeassistant", "restart")
-            return self.async_create_entry(title="", data={})
-
-        return self.async_show_form(step_id="confirm", data_schema=vol.Schema({}))
-
-
-async def async_create_fix_flow(
+def create_integration_change_issue(
     hass: HomeAssistant,
-    issue_id: str,
-    data: dict[str, str | int | float | None] | None = None,
-    *args: Any,
-    **kwargs: Any,
-) -> RepairsFlow:
-    """Create flow."""
-    return RestartRequiredFixFlow()
+    component: str,
+    action: str,
+) -> None:
+    """Create a Repair issue when a default_config integration is enabled or disabled.
+
+    This is the only Repair used by Default Config Manager.
+    It informs the user that a system-level default_config component
+    has been modified, which is meaningful and actionable.
+    """
+
+    ir.async_create_issue(
+        hass,
+        DOMAIN,
+        f"default_config_change_{component}",
+        is_fixable=False,
+        is_persistent=True,
+        severity=ir.IssueSeverity.WARNING,
+        translation_key="default_config_change",
+        translation_placeholders={
+            "component": component,
+            "action": action,
+        },
+    )
+
+
+def clear_integration_change_issue(hass: HomeAssistant, component: str) -> None:
+    """Clear the Repair issue for a specific component."""
+    ir.async_delete_issue(
+        hass,
+        DOMAIN,
+        f"default_config_change_{component}",
+    )
+
