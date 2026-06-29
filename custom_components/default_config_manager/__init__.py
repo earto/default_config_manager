@@ -13,6 +13,7 @@ from homeassistant.loader import async_get_integration
 from .const import DOMAIN, LOGGER_PREFIX
 from .helpers import get_static_integrations, get_conditional_integrations
 from .repairs import create_integration_change_issue, clear_integration_change_issue
+from .options_flow import DefaultConfigManagerOptionsFlow
 
 _LOGGER = logging.getLogger(LOGGER_PREFIX)
 
@@ -20,7 +21,7 @@ _LOGGER = logging.getLogger(LOGGER_PREFIX)
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Default Config Manager from a config entry."""
 
-    # Reload on options change
+    # Reload when options change
     entry.async_on_unload(entry.add_update_listener(update_listener))
 
     # Store YAML detection result
@@ -76,3 +77,9 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Handle options update."""
+    await hass.config_entries.async_reload(entry.entry_id)
+
+
+async def async_get_options_flow(config_entry: ConfigEntry):
+    """Return the options flow handler."""
+    return DefaultConfigManagerOptionsFlow(config_entry)
