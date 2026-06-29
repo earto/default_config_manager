@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 import voluptuous as vol
+import homeassistant.helpers.config_validation as cv
 
 from homeassistant import config_entries
 
@@ -47,8 +48,8 @@ class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         schema = vol.Schema(
             {
                 vol.Optional(CONF_ADVANCED_MODE, default=False): bool,
-                vol.Optional(CONF_COMPONENTS_TO_DISABLE, default=[]): vol.All(
-                    [vol.In(static_integrations)],
+                vol.Optional(CONF_COMPONENTS_TO_DISABLE, default=[]): cv.multi_select(
+                    {item: item for item in static_integrations}
                 ),
             }
         )
