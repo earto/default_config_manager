@@ -2,31 +2,31 @@
   "config": {
     "step": {
       "user": {
-        "description": "[%key:common::config_flow::description::confirm_setup%]"
+        "title": "Default Config Manager",
+        "description": "Set up the Default Config Manager integration."
+      },
+      "init": {
+        "title": "Default Config Manager",
+        "description": "Default Config version: {default_config_version}\n\n{status}",
+        "data": {
+          "advanced_mode": "Enable advanced mode",
+          "components_to_disable": "Disable integrations"
+        }
       }
     },
-    "abort": {
-      "single_instance_allowed": "[%key:common::config_flow::abort::single_instance_allowed%]"
+    "error": {
+      "default_config_enabled": "default_config is still enabled in configuration.yaml. Remove it to manage default_config here.",
+      "advanced_warning": "Advanced mode allows disabling default_config integrations. Use with caution."
     }
   },
   "options": {
     "step": {
       "init": {
+        "title": "Default Config Manager",
+        "description": "Default Config version: {default_config_version}\n\n{status}",
         "data": {
-          "components_to_disable": "default_config components to disable"
-        }
-      }
-    }
-  },
-  "issues": {
-    "restart_required": {
-      "title": "Home Assistant Restart Required",
-      "fix_flow": {
-        "step": {
-          "confirm": {
-            "title": "Restart Home Assistant",
-            "description": "The Default Config Disabler has made changes to your Home Assistant configuration that require a restart.\n\nSelect submit to restart Home Assistant now."
-          }
+          "advanced_mode": "Enable advanced mode",
+          "components_to_disable": "Disable integrations"
         }
       }
     }
