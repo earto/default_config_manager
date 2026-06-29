@@ -13,19 +13,13 @@ from .const import DOMAIN, LOGGER_PREFIX
 
 _LOGGER = logging.getLogger(__name__)
 
-# Discovery-based integrations that can load conditional integrations
-DISCOVERY_PARENTS = {
-    "zeroconf",
-    "ssdp",
-    "usb",
-    "cloud",
-    "mobile_app",
-    "energy",
-}
-
 
 def get_default_config_components() -> list[str]:
-    """Return a list of components included in Home Assistant's default_config."""
+    """Return a list of components included in Home Assistant's default_config.
+
+    This is dynamically loaded from HA's own manifest so it always stays
+    perfectly aligned with Home Assistant's behaviour.
+    """
     try:
         components_path = (
             Path(ha_components.__file__).resolve().parent
@@ -46,23 +40,18 @@ def get_conditional_integrations(
     running_components: List[str],
     static_components: List[str],
 ) -> List[str]:
-    """Return conditional integrations loaded indirectly by default_config.
+    """Return conditional integrations enabled indirectly by default_config.
 
     Conditional integrations are:
     - running
-    - NOT static default_config components
-    - AND likely loaded by discovery parents (zeroconf, ssdp, usb, cloud, mobile_app, energy)
+    - NOT static default_config integrations
+
+    This definition is fully dynamic and automatically adapts to changes in
+    Home Assistant's discovery behaviour without requiring code updates.
     """
 
-    conditional = []
-
-    for component in running_components:
-        # Skip static default_config integrations
-        if component in static_components:
-            continue
-
-        # If any discovery parent is running, this component may have been loaded by it
-        if any(parent in running_components for parent in DISCOVERY_PARENTS):
-            conditional.append(component)
-
-    return sorted(conditional)
+    return sorted(
+        component
+        for component in running_components
+        if component not in static_components
+    )
