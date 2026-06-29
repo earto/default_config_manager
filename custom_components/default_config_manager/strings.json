@@ -30,5 +30,11 @@
         }
       }
     }
+  },
+  "issues": {
+    "default_config_change": {
+      "title": "Default Config integration changed",
+      "description": "The integration '{component}' was {action} by Default Config Manager."
+    }
   }
 }
