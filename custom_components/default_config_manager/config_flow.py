@@ -58,7 +58,3 @@ class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=schema,
         )
-
-    async def async_step_options(self, user_input=None):
-        """Handle options flow."""
-        return await self.async_step_user(user_input)
