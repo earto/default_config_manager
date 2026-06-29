@@ -17,7 +17,10 @@ from .const import (
     DOMAIN,
     NAME,
 )
-from .helpers import get_default_config_components
+from .helpers import (
+    get_default_config_components,
+    get_conditional_integrations,
+)
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -65,32 +68,32 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         )
 
         # Detect if default_config is still enabled in YAML
-        yaml_config = self.hass.data.get("yaml_config", {})
+        yaml_config = self.hass.data.get(DOMAIN, {}).get("yaml_config", {})
         default_config_enabled = "default_config" in yaml_config
 
-        # Get static default_config components from manifest (always the same set)
+        # Get static default_config components from HA manifest
         static_components = await self.hass.async_add_executor_job(
             get_default_config_components
         )
 
-        # Determine running components (status list only shows running ones)
-        running_components = sorted(
-            c for c in self.hass.config.components if c in static_components
+        # Determine running components
+        running_components = sorted(self.hass.config.components)
+
+        # Dynamic conditional detection:
+        # Conditional = running − static
+        conditional_running = get_conditional_integrations(
+            running_components=running_components,
+            static_components=static_components,
         )
 
-        # For now, treat all running static components as "static" section.
-        # Conditional integrations (non-static but loaded via discovery) can be
-        # added later by extending this logic.
-        static_running = running_components
-        conditional_running: list[str] = []
+        # Static running = running ∩ static
+        static_running = [
+            component for component in running_components if component in static_components
+        ]
 
-        # Build status text (two sections, running only)
-        static_status_lines = [
-            f"- {component}" for component in static_running
-        ] or ["(none)"]
-        conditional_status_lines = [
-            f"- {component}" for component in conditional_running
-        ] or ["(none)"]
+        # Build status text
+        static_status_lines = [f"- {component}" for component in static_running] or ["(none)"]
+        conditional_status_lines = [f"- {component}" for component in conditional_running] or ["(none)"]
 
         status_text = (
             "Static default_config integrations (running):\n"
@@ -183,3 +186,4 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                 ): cv.multi_select(static_components),
             }
         )
+
