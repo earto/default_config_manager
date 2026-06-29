@@ -7,8 +7,8 @@ from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.setup import async_setup_component
 from homeassistant.loader import async_get_integration
-from homeassistant.setup import async_setup_component, async_unload_component
 
 from .const import DOMAIN, LOGGER_PREFIX
 from .helpers import get_static_integrations, get_conditional_integrations
@@ -46,14 +46,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 # Clear any previous issue for this component
                 clear_integration_change_issue(hass, component)
 
-                # Attempt unload
-                result = await async_unload_component(hass, component)
+                # Correct modern unload API
+                integration = await async_get_integration(hass, component)
+                result = await integration.async_unload()
 
                 if result:
-                    # Create Repair issue
                     create_integration_change_issue(hass, component, "disabled")
                 else:
                     _LOGGER.warning("Failed to unload component: %s", component)
+
             else:
                 # Ensure component is enabled
                 if component not in hass.config.components:
@@ -62,11 +63,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     # Clear any previous issue for this component
                     clear_integration_change_issue(hass, component)
 
-                    # Attempt setup
+                    # Setup component
                     result = await async_setup_component(hass, component, {})
 
                     if result:
-                        # Create Repair issue
                         create_integration_change_issue(hass, component, "enabled")
                     else:
                         _LOGGER.warning("Failed to set up component: %s", component)
