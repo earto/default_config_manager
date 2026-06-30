@@ -1,4 +1,4 @@
-"""config_flow.py for Default Config Manager."""
+# config_flow.py
 
 from __future__ import annotations
 
@@ -8,6 +8,8 @@ import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 
 from homeassistant import config_entries
+from homeassistant.core import callback
+from homeassistant.config_entries import ConfigEntry
 
 from .const import (
     DOMAIN,
@@ -16,6 +18,7 @@ from .const import (
     CONF_COMPONENTS_TO_DISABLE,
 )
 from .helpers import get_static_integrations
+from .options_flow import DefaultConfigManagerOptionsFlow
 
 import logging
 _LOGGER = logging.getLogger(__name__)
@@ -25,6 +28,16 @@ class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Default Config Manager."""
 
     VERSION = 1
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: ConfigEntry):
+        """Create the options flow."""
+        _LOGGER.debug(
+            "config_flow async_get_options_flow called for entry_id=%s",
+            config_entry.entry_id,
+        )
+        return DefaultConfigManagerOptionsFlow(config_entry)
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None):
         """Handle the initial step."""
