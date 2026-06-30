@@ -1,4 +1,4 @@
-# config_flow.py
+"""config_flow.py for Default Config Manager."""
 
 from __future__ import annotations
 
@@ -78,3 +78,4 @@ class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=schema,
         )
+
