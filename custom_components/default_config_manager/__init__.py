@@ -20,26 +20,26 @@ _LOGGER = logging.getLogger(LOGGER_PREFIX)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Default Config Manager from a config entry."""
-    _LOGGER.debug("DCM: async_setup_entry called for entry_id=%s", entry.entry_id)
+    _LOGGER.debug("async_setup_entry called for entry_id=%s", entry.entry_id)
 
     # Reload when options change
     entry.async_on_unload(entry.add_update_listener(update_listener))
 
     # Store YAML detection result
     yaml_config = hass.data.setdefault(DOMAIN, {}).get("yaml_config", False)
-    _LOGGER.debug("DCM: yaml_config=%s", yaml_config)
+    _LOGGER.debug("yaml_config=%s", yaml_config)
 
     # Load static and conditional integrations dynamically
     static_integrations = await get_static_integrations(hass)
     conditional_integrations = await get_conditional_integrations(hass)
-    _LOGGER.debug("DCM: static_integrations=%s", static_integrations)
-    _LOGGER.debug("DCM: conditional_integrations=%s", conditional_integrations)
+    _LOGGER.debug("static_integrations=%s", static_integrations)
+    _LOGGER.debug("conditional_integrations=%s", conditional_integrations)
 
     # Read options
     advanced_mode = entry.options.get("advanced_mode", False)
     disabled_components = entry.options.get("components_to_disable", [])
     _LOGGER.debug(
-        "DCM: options loaded: advanced_mode=%s, disabled_components=%s",
+        "options loaded: advanced_mode=%s, disabled_components=%s",
         advanced_mode,
         disabled_components,
     )
@@ -80,19 +80,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload Default Config Manager config entry."""
-    _LOGGER.info("DCM: Unloading Default Config Manager")
+    _LOGGER.info("Unloading Default Config Manager")
     return True
 
 
 async def update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Handle options update."""
-    _LOGGER.debug("DCM: update_listener triggered for entry_id=%s", entry.entry_id)
+    _LOGGER.debug("update_listener triggered for entry_id=%s", entry.entry_id)
     await hass.config_entries.async_reload(entry.entry_id)
 
 
 async def async_get_options_flow(config_entry: ConfigEntry):
     """Return the options flow handler."""
-    _LOGGER.debug(
-        "DCM: async_get_options_flow called for entry_id=%s", config_entry.entry_id
-    )
+    _LOGGER.debug("async_get_options_flow called for entry_id=%s", config_entry.entry_id)
     return DefaultConfigManagerOptionsFlow(config_entry)
