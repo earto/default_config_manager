@@ -13,7 +13,6 @@ from homeassistant.loader import async_get_integration
 from .const import DOMAIN
 from .helpers import get_static_integrations, get_conditional_integrations
 from .repairs import create_integration_change_issue, clear_integration_change_issue
-from .options_flow import DefaultConfigManagerOptionsFlow
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -82,9 +81,3 @@ async def update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Handle options update."""
     _LOGGER.debug("update_listener triggered for entry_id=%s", entry.entry_id)
     await hass.config_entries.async_reload(entry.entry_id)
-
-
-async def async_get_options_flow(config_entry: ConfigEntry):
-    """Return the options flow handler."""
-    _LOGGER.debug("async_get_options_flow called for entry_id=%s", config_entry.entry_id)
-    return DefaultConfigManagerOptionsFlow(config_entry)
