@@ -12,12 +12,11 @@ from .const import (
     DOMAIN,
     CONF_ADVANCED_MODE,
     CONF_COMPONENTS_TO_DISABLE,
-    LOGGER_PREFIX,
 )
 from .helpers import get_static_integrations
 
 import logging
-_LOGGER = logging.getLogger(LOGGER_PREFIX)
+_LOGGER = logging.getLogger(__name__)
 
 
 class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
