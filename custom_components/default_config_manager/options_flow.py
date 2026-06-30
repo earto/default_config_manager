@@ -24,7 +24,7 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
 
     def __init__(self, config_entry):
         _LOGGER.debug("OptionsFlow __init__ called for entry_id=%s", config_entry.entry_id)
-        self._config_entry = config_entry   # ← FIXED
+        self._config_entry = config_entry
 
     async def async_step_init(self, user_input=None):
         _LOGGER.debug("OptionsFlow async_step_init called, user_input=%s", user_input)
@@ -41,7 +41,10 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
                 data=user_input,
             )
 
-        static_integrations = await get_static_integrations(self._config_entry.hass)
+        # REQUIRED FIX: use the hass reference stored on the entry
+        hass = self._config_entry._hass
+
+        static_integrations = await get_static_integrations(hass)
         _LOGGER.debug("static_integrations=%s", static_integrations)
 
         schema = vol.Schema(
