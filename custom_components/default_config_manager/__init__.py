@@ -21,6 +21,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Default Config Manager from a config entry."""
     _LOGGER.debug("async_setup_entry called for entry_id=%s", entry.entry_id)
 
+    # REQUIRED FIX: store hass on the entry so options flow can access it
+    entry._hass = hass
+
     entry.async_on_unload(entry.add_update_listener(update_listener))
 
     yaml_config = hass.data.setdefault(DOMAIN, {}).get("yaml_config", False)
