@@ -10,32 +10,28 @@ from homeassistant.core import HomeAssistant
 from homeassistant.setup import async_setup_component
 from homeassistant.loader import async_get_integration
 
-from .const import DOMAIN, LOGGER_PREFIX
+from .const import DOMAIN
 from .helpers import get_static_integrations, get_conditional_integrations
 from .repairs import create_integration_change_issue, clear_integration_change_issue
 from .options_flow import DefaultConfigManagerOptionsFlow
 
-_LOGGER = logging.getLogger(LOGGER_PREFIX)
+_LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Default Config Manager from a config entry."""
     _LOGGER.debug("async_setup_entry called for entry_id=%s", entry.entry_id)
 
-    # Reload when options change
     entry.async_on_unload(entry.add_update_listener(update_listener))
 
-    # Store YAML detection result
     yaml_config = hass.data.setdefault(DOMAIN, {}).get("yaml_config", False)
     _LOGGER.debug("yaml_config=%s", yaml_config)
 
-    # Load static and conditional integrations dynamically
     static_integrations = await get_static_integrations(hass)
     conditional_integrations = await get_conditional_integrations(hass)
     _LOGGER.debug("static_integrations=%s", static_integrations)
     _LOGGER.debug("conditional_integrations=%s", conditional_integrations)
 
-    # Read options
     advanced_mode = entry.options.get("advanced_mode", False)
     disabled_components = entry.options.get("components_to_disable", [])
     _LOGGER.debug(
@@ -44,12 +40,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         disabled_components,
     )
 
-    # If YAML default_config is enabled, do nothing
     if yaml_config:
         _LOGGER.info("default_config is enabled in YAML; manager is inactive.")
         return True
 
-    # Apply disable logic only in advanced mode
     if advanced_mode:
         for component in static_integrations:
             if component in disabled_components:
