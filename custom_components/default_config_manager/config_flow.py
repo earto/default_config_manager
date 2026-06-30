@@ -78,4 +78,3 @@ class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=schema,
         )
-
