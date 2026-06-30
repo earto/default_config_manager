@@ -23,8 +23,8 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
     """Handle options flow for Default Config Manager."""
 
     def __init__(self, config_entry):
-        self.config_entry = config_entry
         _LOGGER.debug("OptionsFlow __init__ called for entry_id=%s", config_entry.entry_id)
+        self._config_entry = config_entry   # ← FIXED
 
     async def async_step_init(self, user_input=None):
         _LOGGER.debug("OptionsFlow async_step_init called, user_input=%s", user_input)
@@ -41,18 +41,18 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
                 data=user_input,
             )
 
-        static_integrations = await get_static_integrations(self.config_entry.hass)
+        static_integrations = await get_static_integrations(self._config_entry.hass)
         _LOGGER.debug("static_integrations=%s", static_integrations)
 
         schema = vol.Schema(
             {
                 vol.Optional(
                     CONF_ADVANCED_MODE,
-                    default=self.config_entry.options.get(CONF_ADVANCED_MODE, False),
+                    default=self._config_entry.options.get(CONF_ADVANCED_MODE, False),
                 ): bool,
                 vol.Optional(
                     CONF_COMPONENTS_TO_DISABLE,
-                    default=self.config_entry.options.get(CONF_COMPONENTS_TO_DISABLE, []),
+                    default=self._config_entry.options.get(CONF_COMPONENTS_TO_DISABLE, []),
                 ): cv.multi_select({item: item for item in static_integrations}),
             }
         )
