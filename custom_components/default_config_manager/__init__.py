@@ -24,6 +24,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Set up Default Config Manager from a config entry."""
     entry._hass = hass
     entry.async_on_unload(entry.add_update_listener(update_listener))
 
@@ -54,16 +55,23 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         return True
 
     if mode_code == MODE_3:
+        # Apply enable/disable logic
         for component in static_integrations:
+
+            # Disable component
             if component in disabled_components:
                 clear_integration_change_issue(hass, component)
-                integration = await async_get_integration(hass, component)
-                result = await integration.async_unload()
-                if result:
+
+                # Remove from active components if present
+                if component in hass.config.components:
+                    hass.config.components.remove(component)
                     create_integration_change_issue(hass, component, "disabled")
+
+            # Enable component
             else:
                 if component not in hass.config.components:
                     clear_integration_change_issue(hass, component)
+
                     result = await async_setup_component(hass, component, {})
                     if result:
                         create_integration_change_issue(hass, component, "enabled")
@@ -72,8 +80,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Unload Default Config Manager config entry."""
     return True
 
 
 async def update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Handle options update."""
     await hass.config_entries.async_reload(entry.entry_id)
