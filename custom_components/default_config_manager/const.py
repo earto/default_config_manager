@@ -1,4 +1,4 @@
-"""Constants for Default Config Manager"""
+"""const.py for Default Config Manager"""
 
 DOMAIN = "default_config_manager"
 NAME = "Default Config Manager"
