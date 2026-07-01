@@ -28,9 +28,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Default Config Manager from a config entry."""
     _LOGGER.debug("async_setup_entry called for entry_id=%s", entry.entry_id)
 
-    # Store hass on the entry so options flow can access it
     entry._hass = hass
-
     entry.async_on_unload(entry.add_update_listener(update_listener))
 
     yaml_config = hass.data.setdefault(DOMAIN, {}).get("yaml_config", False)
@@ -49,27 +47,24 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         disabled_components,
     )
 
-    # Derive internal mode code (1/2/3) for logging/behaviour clarity
+    # Derive internal mode code (1/2/3)
     if yaml_config:
-        mode_code = MODE_1  # Basic (Config File)
+        mode_code = MODE_1
     elif advanced_mode:
-        mode_code = MODE_3  # Advanced (Managed)
+        mode_code = MODE_3
     else:
-        mode_code = MODE_2  # Basic (Managed)
+        mode_code = MODE_2
 
     _LOGGER.info("Default Config Manager running in mode_code=%s", mode_code)
 
-    # Mode 1: Basic (Config File) → manager inactive, YAML is authoritative
     if mode_code == MODE_1:
         _LOGGER.info("default_config is enabled in YAML; manager is inactive.")
         return True
 
-    # Mode 2: Basic (Managed) → read-only, no disabling/enabling
     if mode_code == MODE_2:
         _LOGGER.info("Manager in Basic (Managed) mode; no component changes applied.")
         return True
 
-    # Mode 3: Advanced (Managed) → full control over static integrations
     if mode_code == MODE_3:
         for component in static_integrations:
             if component in disabled_components:
