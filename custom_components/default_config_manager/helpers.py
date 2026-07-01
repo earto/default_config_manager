@@ -51,17 +51,9 @@ async def get_conditional_integrations(hass: HomeAssistant) -> List[str]:
 
 
 async def get_default_config_version(hass: HomeAssistant) -> str:
-    """Return the version of HA's default_config integration."""
+    """Return the Home Assistant Core version."""
     try:
-        # default_config is a core integration; read its manifest directly
-        components_path = (
-            Path(ha_components.__file__).resolve().parent
-            / "default_config"
-            / "manifest.json"
-        )
-        with components_path.open(encoding="utf-8") as f:
-            data = json.load(f)
-            return data.get("version", "unknown")
+        return hass.config.as_dict().get("version", "unknown")
     except Exception as err:
-        _LOGGER.error("Failed to read default_config version: %s", err)
+        _LOGGER.error("Failed to read HA core version: %s", err)
         return "unknown"
