@@ -1,4 +1,4 @@
-"""__init__.py for Default Config Manager."""
+"""Init for Default Config Manager."""
 
 from __future__ import annotations
 
@@ -10,7 +10,14 @@ from homeassistant.core import HomeAssistant
 from homeassistant.setup import async_setup_component
 from homeassistant.loader import async_get_integration
 
-from .const import DOMAIN
+from .const import (
+    DOMAIN,
+    CONF_ADVANCED_MODE,
+    CONF_COMPONENTS_TO_DISABLE,
+    MODE_1,
+    MODE_2,
+    MODE_3,
+)
 from .helpers import get_static_integrations, get_conditional_integrations
 from .repairs import create_integration_change_issue, clear_integration_change_issue
 
@@ -21,7 +28,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Default Config Manager from a config entry."""
     _LOGGER.debug("async_setup_entry called for entry_id=%s", entry.entry_id)
 
-    # REQUIRED FIX: store hass on the entry so options flow can access it
+    # Store hass on the entry so options flow can access it
     entry._hass = hass
 
     entry.async_on_unload(entry.add_update_listener(update_listener))
@@ -34,19 +41,36 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     _LOGGER.debug("static_integrations=%s", static_integrations)
     _LOGGER.debug("conditional_integrations=%s", conditional_integrations)
 
-    advanced_mode = entry.options.get("advanced_mode", False)
-    disabled_components = entry.options.get("components_to_disable", [])
+    advanced_mode = entry.options.get(CONF_ADVANCED_MODE, False)
+    disabled_components = entry.options.get(CONF_COMPONENTS_TO_DISABLE, [])
     _LOGGER.debug(
         "options loaded: advanced_mode=%s, disabled_components=%s",
         advanced_mode,
         disabled_components,
     )
 
+    # Derive internal mode code (1/2/3) for logging/behaviour clarity
     if yaml_config:
+        mode_code = MODE_1  # Basic (Config File)
+    elif advanced_mode:
+        mode_code = MODE_3  # Advanced (Managed)
+    else:
+        mode_code = MODE_2  # Basic (Managed)
+
+    _LOGGER.info("Default Config Manager running in mode_code=%s", mode_code)
+
+    # Mode 1: Basic (Config File) → manager inactive, YAML is authoritative
+    if mode_code == MODE_1:
         _LOGGER.info("default_config is enabled in YAML; manager is inactive.")
         return True
 
-    if advanced_mode:
+    # Mode 2: Basic (Managed) → read-only, no disabling/enabling
+    if mode_code == MODE_2:
+        _LOGGER.info("Manager in Basic (Managed) mode; no component changes applied.")
+        return True
+
+    # Mode 3: Advanced (Managed) → full control over static integrations
+    if mode_code == MODE_3:
         for component in static_integrations:
             if component in disabled_components:
                 _LOGGER.info("Disabling default_config component: %s", component)
