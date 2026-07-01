@@ -1,4 +1,4 @@
-"""Options Flow for Default Config Manager."""
+"""Options flow for Default Config Manager."""
 
 from __future__ import annotations
 
@@ -49,27 +49,24 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
                 data=user_input,
             )
 
-        # Use the hass reference stored on the entry
         hass = self._config_entry._hass
 
-        # Read current options
         advanced_mode = self._config_entry.options.get(CONF_ADVANCED_MODE, False)
         disabled_components = self._config_entry.options.get(
             CONF_COMPONENTS_TO_DISABLE,
             [],
         )
 
-        # YAML flag from hass.data[DOMAIN]["yaml_config"]
         yaml_config_enabled = hass.data.setdefault(DOMAIN, {}).get("yaml_config", False)
         _LOGGER.debug("OptionsFlow yaml_config_enabled=%s", yaml_config_enabled)
 
         # Determine internal mode code (1/2/3)
         if yaml_config_enabled:
-            mode_code = MODE_1  # Basic (Config File)
+            mode_code = MODE_1
         elif advanced_mode:
-            mode_code = MODE_3  # Advanced (Managed)
+            mode_code = MODE_3
         else:
-            mode_code = MODE_2  # Basic (Managed)
+            mode_code = MODE_2
 
         mode_display = MODE_DISPLAY[mode_code]
         _LOGGER.debug(
@@ -78,45 +75,40 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             mode_display,
         )
 
-        # Default Config Version (from helpers)
         default_config_version = await get_default_config_version(hass)
         _LOGGER.debug(
             "OptionsFlow default_config_version=%s",
             default_config_version,
         )
 
-        # Static integrations for disable list (only used in Mode 3)
         static_integrations = await get_static_integrations(hass)
         _LOGGER.debug("OptionsFlow static_integrations=%s", static_integrations)
 
-        # Base schema: header fields (read-only via suggested_value)
+        # Header fields: Mode first, Version second
         schema_dict: dict[Any, Any] = {
-            vol.Optional(
-                "default_config_version",
-                description={"suggested_value": default_config_version},
-            ): str,
             vol.Optional(
                 "mode",
                 description={"suggested_value": mode_display},
             ): str,
+            vol.Optional(
+                "default_config version",
+                description={"suggested_value": default_config_version},
+            ): str,
         }
 
-        # Advanced mode toggle is available in Mode 2 and 3
+        # Advanced Options switch (Mode 2 & 3)
         if mode_code in (MODE_2, MODE_3):
             schema_dict[vol.Optional(
-                CONF_ADVANCED_MODE,
+                "Advanced Options",
                 default=advanced_mode,
             )] = bool
 
-        # Disable list only in Mode 3 (Advanced Managed)
+        # Disable list (Mode 3 only)
         if mode_code == MODE_3:
             schema_dict[vol.Optional(
                 CONF_COMPONENTS_TO_DISABLE,
                 default=disabled_components,
             )] = cv.multi_select({item: item for item in static_integrations})
-
-        # In Mode 1 (Basic Config File), no advanced toggle, no disable list
-        # Status list will be added later when we wire that UI
 
         schema = vol.Schema(schema_dict)
 
@@ -124,4 +116,3 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             step_id="user",
             data_schema=schema,
         )
-
