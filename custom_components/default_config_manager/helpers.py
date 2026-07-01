@@ -1,4 +1,4 @@
-"""helpers.py for Default Config Manager."""
+"""Helpers for Default Config Manager."""
 
 from __future__ import annotations
 
@@ -49,3 +49,19 @@ async def get_conditional_integrations(hass: HomeAssistant) -> List[str]:
         if component not in static_components
     )
 
+
+async def get_default_config_version(hass: HomeAssistant) -> str:
+    """Return the version of HA's default_config integration."""
+    try:
+        # default_config is a core integration; read its manifest directly
+        components_path = (
+            Path(ha_components.__file__).resolve().parent
+            / "default_config"
+            / "manifest.json"
+        )
+        with components_path.open(encoding="utf-8") as f:
+            data = json.load(f)
+            return data.get("version", "unknown")
+    except Exception as err:
+        _LOGGER.error("Failed to read default_config version: %s", err)
+        return "unknown"
