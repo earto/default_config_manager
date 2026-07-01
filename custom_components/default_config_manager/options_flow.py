@@ -28,26 +28,14 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
     """Handle options flow for Default Config Manager."""
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
-        _LOGGER.debug(
-            "OptionsFlow __init__ called for entry_id=%s",
-            config_entry.entry_id,
-        )
         self._config_entry = config_entry
 
-    async def async_step_init(self, user_input: dict[str, Any] | None = None):
-        _LOGGER.debug("OptionsFlow async_step_init called, user_input=%s", user_input)
+    async def async_step_init(self, user_input=None):
         return await self.async_step_user(user_input)
 
-    async def async_step_user(self, user_input: dict[str, Any] | None = None):
-        """Options form."""
-        _LOGGER.debug("OptionsFlow async_step_user called, user_input=%s", user_input)
-
+    async def async_step_user(self, user_input=None):
         if user_input is not None:
-            _LOGGER.debug("OptionsFlow creating entry with data=%s", user_input)
-            return self.async_create_entry(
-                title="Options",
-                data=user_input,
-            )
+            return self.async_create_entry(title="Options", data=user_input)
 
         hass = self._config_entry._hass
 
@@ -58,9 +46,8 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         )
 
         yaml_config_enabled = hass.data.setdefault(DOMAIN, {}).get("yaml_config", False)
-        _LOGGER.debug("OptionsFlow yaml_config_enabled=%s", yaml_config_enabled)
 
-        # Mode detection based on yaml_config + advanced_mode
+        # Mode detection
         if yaml_config_enabled:
             mode_code = MODE_1
         elif advanced_mode:
@@ -69,23 +56,10 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             mode_code = MODE_2
 
         mode_display = MODE_DISPLAY[mode_code]
-        _LOGGER.debug(
-            "OptionsFlow resolved mode_code=%s, mode_display=%s",
-            mode_code,
-            mode_display,
-        )
-
         default_config_version = await get_default_config_version(hass)
-        _LOGGER.debug(
-            "OptionsFlow default_config_version=%s",
-            default_config_version,
-        )
-
         static_integrations = await get_static_integrations(hass)
-        _LOGGER.debug("OptionsFlow static_integrations=%s", static_integrations)
 
-        # Header fields: Mode first, Version second
-        schema_dict: dict[Any, Any] = {
+        schema_dict = {
             vol.Optional(
                 "mode",
                 description={"suggested_value": mode_display},
@@ -96,23 +70,16 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             ): str,
         }
 
-        # Advanced option as a plain checkbox (Mode 2 & 3)
         if mode_code in (MODE_2, MODE_3):
             schema_dict[vol.Optional(
                 CONF_ADVANCED_MODE,
                 default=advanced_mode,
             )] = bool
 
-        # Disable list (Mode 3 only)
         if mode_code == MODE_3:
             schema_dict[vol.Optional(
                 CONF_COMPONENTS_TO_DISABLE,
                 default=disabled_components,
             )] = cv.multi_select({item: item for item in static_integrations})
 
-        schema = vol.Schema(schema_dict)
-
-        return self.async_show_form(
-            step_id="user",
-            data_schema=schema,
-        )
+        return self.async_show_form(step_id="user", data_schema=vol.Schema(schema_dict))
