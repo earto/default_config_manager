@@ -1,4 +1,4 @@
-"""Helper functions for the Default Config Manager integration."""
+"""helpers.py for Default Config Manager."""
 
 from __future__ import annotations
 
