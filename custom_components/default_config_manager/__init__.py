@@ -31,6 +31,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     entry._hass = hass
     entry.async_on_unload(entry.add_update_listener(update_listener))
 
+    # NOTE: yaml_config is only read here; something else must set hass.data[DOMAIN]["yaml_config"]
     yaml_config = hass.data.setdefault(DOMAIN, {}).get("yaml_config", False)
     _LOGGER.debug("yaml_config=%s", yaml_config)
 
@@ -47,7 +48,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         disabled_components,
     )
 
-    # Derive internal mode code (1/2/3)
+    # Mode detection
     if yaml_config:
         mode_code = MODE_1
     elif advanced_mode:
