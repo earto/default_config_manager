@@ -60,7 +60,7 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         yaml_config_enabled = hass.data.setdefault(DOMAIN, {}).get("yaml_config", False)
         _LOGGER.debug("OptionsFlow yaml_config_enabled=%s", yaml_config_enabled)
 
-        # Determine internal mode code (1/2/3)
+        # Mode detection based on yaml_config + advanced_mode
         if yaml_config_enabled:
             mode_code = MODE_1
         elif advanced_mode:
@@ -96,12 +96,11 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             ): str,
         }
 
-        # Advanced Options switch (Mode 2 & 3)
+        # Advanced option as a plain checkbox (Mode 2 & 3)
         if mode_code in (MODE_2, MODE_3):
             schema_dict[vol.Optional(
                 CONF_ADVANCED_MODE,
                 default=advanced_mode,
-                description={"suggested_value": "Advanced Options"},
             )] = bool
 
         # Disable list (Mode 3 only)
