@@ -99,8 +99,9 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         # Advanced Options switch (Mode 2 & 3)
         if mode_code in (MODE_2, MODE_3):
             schema_dict[vol.Optional(
-                "Advanced Options",
+                CONF_ADVANCED_MODE,
                 default=advanced_mode,
+                description={"suggested_value": "Advanced Options"},
             )] = bool
 
         # Disable list (Mode 3 only)
