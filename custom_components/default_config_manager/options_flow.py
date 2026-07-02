@@ -37,7 +37,8 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             return self.async_create_entry(title="Options", data=user_input)
 
-        hass = self._config_entry._hass
+        # Corrected: return to the original path
+        hass = self.hass
 
         advanced_mode = self._config_entry.options.get(CONF_ADVANCED_MODE, False)
         disabled_components = self._config_entry.options.get(
