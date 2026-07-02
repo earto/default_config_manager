@@ -3,56 +3,72 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
 
+import homeassistant.components.default_config as ha_default_config
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import config_validation as cv, issue_registry as ir
+from homeassistant.helpers.typing import ConfigType
 from homeassistant.setup import async_setup_component
-from homeassistant.loader import async_get_integration
 
 from .const import (
+    CONF_COMPONENTS_TO_DISABLE,
     DOMAIN,
     CONF_ADVANCED_MODE,
-    CONF_COMPONENTS_TO_DISABLE,
     MODE_1,
     MODE_2,
     MODE_3,
 )
-from .helpers import get_static_integrations, get_conditional_integrations
-from .repairs import create_integration_change_issue, clear_integration_change_issue
+from .helpers import get_default_config_components
+
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up Default Config Manager from a config entry."""
-    _LOGGER.debug("async_setup_entry called for entry_id=%s", entry.entry_id)
-
-    entry._hass = hass
-    entry.async_on_unload(entry.add_update_listener(update_listener))
-
-    # YAML detection (minimal addition)
-    if "default_config" in hass.config.components:
-        hass.data.setdefault(DOMAIN, {})["yaml_config"] = True
-
-    yaml_config = hass.data.setdefault(DOMAIN, {}).get("yaml_config", False)
-    _LOGGER.debug("yaml_config=%s", yaml_config)
-
-    static_integrations = await get_static_integrations(hass)
-    conditional_integrations = await get_conditional_integrations(hass)
-    _LOGGER.debug("static_integrations=%s", static_integrations)
-    _LOGGER.debug("conditional_integrations=%s", conditional_integrations)
-
-    advanced_mode = entry.options.get(CONF_ADVANCED_MODE, False)
-    disabled_components = entry.options.get(CONF_COMPONENTS_TO_DISABLE, [])
-    _LOGGER.debug(
-        "options loaded: advanced_mode=%s, disabled_components=%s",
-        advanced_mode,
-        disabled_components,
+def _create_restart_issue(hass: HomeAssistant) -> None:
+    ir.async_create_issue(
+        hass,
+        DOMAIN,
+        "restart_required",
+        is_fixable=True,
+        severity=ir.IssueSeverity.WARNING,
+        translation_key="restart_required",
     )
 
-    # Mode detection
-    if yaml_config:
+
+def _delete_restart_issue(hass: HomeAssistant) -> None:
+    ir.async_delete_issue(hass, DOMAIN, "restart_required")
+
+
+def _filter_disabled_list(disabled: list[str], manifest: list[str]) -> list[str]:
+    """Return only disabled items that still exist in the manifest."""
+    return [c for c in disabled if c in manifest]
+
+
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+    """Set up the Default Config Manager integration."""
+    _LOGGER.debug("Setting up Default Config Manager")
+
+    # Clear any stale restart-required issue
+    _delete_restart_issue(hass)
+
+    # Detect YAML default_config (Mode 1)
+    yaml_config_enabled = "default_config" in hass.config.components
+    hass.data.setdefault(DOMAIN, {})["yaml_config"] = yaml_config_enabled
+    _LOGGER.debug("yaml_config_enabled=%s", yaml_config_enabled)
+
+    # Determine mode
+    advanced_mode = False
+    disabled_components: list[str] = []
+
+    for entry in hass.config_entries.async_entries(DOMAIN):
+        if entry.options.get(CONF_ADVANCED_MODE, False):
+            advanced_mode = True
+        raw = entry.options.get(CONF_COMPONENTS_TO_DISABLE, [])
+        disabled_components.extend(raw)
+
+    if yaml_config_enabled:
         mode_code = MODE_1
     elif advanced_mode:
         mode_code = MODE_3
@@ -61,54 +77,74 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     _LOGGER.info("Default Config Manager running in mode_code=%s", mode_code)
 
+    # Mode 1: YAML default_config → do nothing
     if mode_code == MODE_1:
         _LOGGER.info("default_config is enabled in YAML; manager is inactive.")
         return True
 
+    # Get default_config dependencies from manifest
+    _LOGGER.debug("Getting default_config dependencies from manifest")
+    components = await hass.async_add_executor_job(get_default_config_components)
+    _LOGGER.debug("Got default_config dependencies: %s", components)
+
+    # Validate disabled list
+    disabled_components = _filter_disabled_list(disabled_components, components)
+    _LOGGER.debug("Validated disabled components: %s", disabled_components)
+
+    # Mode 2: Basic (Managed) → no disabling, just set up everything
     if mode_code == MODE_2:
-        _LOGGER.info("Manager in Basic (Managed) mode; no component changes applied.")
-        return True
+        enabled_components = components
+        _LOGGER.debug("Mode 2 enabled components: %s", enabled_components)
 
-    if mode_code == MODE_3:
-        for component in static_integrations:
+    # Mode 3: Advanced (Managed) → disable selected components
+    else:
+        enabled_components = [c for c in components if c not in disabled_components]
+        _LOGGER.debug("Mode 3 enabled components: %s", enabled_components)
+        _LOGGER.debug("Mode 3 disabled components: %s", disabled_components)
 
-            # Disable component (minimal fix)
-            if component in disabled_components:
-                _LOGGER.info("Disabling default_config component: %s", component)
-                clear_integration_change_issue(hass, component)
+    # Set up only enabled components
+    for component in enabled_components:
+        _LOGGER.debug("Setting up default_config dependency: %s", component)
+        await async_setup_component(hass, component, config)
 
-                # Minimal, correct unload
-                if component in hass.config.components:
-                    hass.config.components.remove(component)
-                    create_integration_change_issue(hass, component, "disabled")
-                else:
-                    _LOGGER.debug(
-                        "Component %s already not in hass.config.components",
-                        component,
-                    )
+    _LOGGER.debug("Setup of default_config dependencies complete")
 
-            # Enable component (unchanged from last working version)
-            else:
-                if component not in hass.config.components:
-                    _LOGGER.info("Enabling default_config component: %s", component)
-                    clear_integration_change_issue(hass, component)
+    # Run built-in default_config conditional setup
+    _LOGGER.debug("Running built-in default_config conditional setup")
+    await ha_default_config.async_setup(hass, config)
 
-                    result = await async_setup_component(hass, component, {})
-                    if result:
-                        create_integration_change_issue(hass, component, "enabled")
-                    else:
-                        _LOGGER.warning("Failed to set up component: %s", component)
+    _LOGGER.debug("Default Config Manager setup complete")
+    return True
 
+
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Set up a config entry for Default Config Manager."""
+    _LOGGER.debug("Setting up Default Config Manager entry")
+    entry.async_on_unload(entry.add_update_listener(update_listener))
     return True
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Unload Default Config Manager config entry."""
-    _LOGGER.info("Unloading Default Config Manager")
+    """Unload a config entry for Default Config Manager."""
+    _LOGGER.debug("Unloading Default Config Manager entry")
     return True
 
 
 async def update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Handle options update."""
-    _LOGGER.debug("update_listener triggered for entry_id=%s", entry.entry_id)
-    await hass.config_entries.async_reload(entry.entry_id)
+    _LOGGER.debug("Validating updated disabled components")
+
+    components = await hass.async_add_executor_job(get_default_config_components)
+
+    raw = entry.options.get(CONF_COMPONENTS_TO_DISABLE, [])
+    cleaned = _filter_disabled_list(raw, components)
+
+    if cleaned != raw:
+        _LOGGER.debug("Pruned invalid disabled components: %s", set(raw) - set(cleaned))
+        hass.config_entries.async_update_entry(
+            entry,
+            options={CONF_COMPONENTS_TO_DISABLE: cleaned},
+        )
+
+    _LOGGER.warning("Updated disabled components. Restart Home Assistant to apply changes")
+    _create_restart_issue(hass)
