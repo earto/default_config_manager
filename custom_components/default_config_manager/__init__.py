@@ -145,6 +145,3 @@ async def update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
             entry,
             options={CONF_COMPONENTS_TO_DISABLE: cleaned},
         )
-
-    _LOGGER.warning("Updated disabled components. Restart Home Assistant to apply changes")
-    _create_restart_issue(hass)
