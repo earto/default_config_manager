@@ -19,7 +19,7 @@ from .const import (
     MODE_2,
     MODE_3,
 )
-from .helpers import get_default_config_components
+from .helpers import get_static_integrations
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
@@ -82,9 +82,9 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         _LOGGER.info("default_config is enabled in YAML; manager is inactive.")
         return True
 
-    # Get default_config dependencies from manifest
+    # Get default_config dependencies from manifest (static integrations)
     _LOGGER.debug("Getting default_config dependencies from manifest")
-    components = await hass.async_add_executor_job(get_default_config_components)
+    components = await get_static_integrations(hass)
     _LOGGER.debug("Got default_config dependencies: %s", components)
 
     # Validate disabled list
@@ -134,7 +134,7 @@ async def update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Handle options update."""
     _LOGGER.debug("Validating updated disabled components")
 
-    components = await hass.async_add_executor_job(get_default_config_components)
+    components = await get_static_integrations(hass)
 
     raw = entry.options.get(CONF_COMPONENTS_TO_DISABLE, [])
     cleaned = _filter_disabled_list(raw, components)
