@@ -5,6 +5,10 @@
         "title": "Default Config Manager",
         "description": "Set up the Default Config Manager integration."
       }
+    },
+    "error": {
+      "default_config_enabled": "default_config is still enabled in configuration.yaml. Remove it to manage default_config here.",
+      "advanced_warning": "Advanced mode allows disabling default_config integrations. Use with caution."
     }
   },
   "options": {
