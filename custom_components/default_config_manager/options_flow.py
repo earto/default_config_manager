@@ -25,11 +25,7 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         self._config_entry = config_entry
 
     async def async_step_init(self, user_input=None):
-        """First step."""
-        return await self.async_step_user(user_input)
-
-    async def async_step_user(self, user_input=None):
-        """Handle user options step."""
+        """Handle the initial options flow step."""
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
 
