@@ -4,6 +4,14 @@
       "user": {
         "title": "Default Config Manager",
         "description": "Set up the Default Config Manager integration."
+      },
+      "init": {
+        "title": "Default Config Manager",
+        "description": "Default Config version: {default_config_version}\n\n{status}",
+        "data": {
+          "advanced_mode": "Enable advanced mode",
+          "components_to_disable": "Disable integrations"
+        }
       }
     },
     "error": {
@@ -15,7 +23,11 @@
     "step": {
       "init": {
         "title": "Default Config Manager",
-        "description": "**Status:** {mode_display}\n**HA Core Version:** {default_config_version}\n\n{status_message}"
+        "description": "Default Config version: {default_config_version}\n\n{status}",
+        "data": {
+          "advanced_mode": "Enable advanced mode",
+          "components_to_disable": "Disable integrations"
+        }
       }
     }
   },
