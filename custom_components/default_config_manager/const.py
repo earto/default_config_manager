@@ -11,7 +11,7 @@ MODE_2 = 2  # Basic (Managed)
 MODE_3 = 3  # Advanced (Managed)
 
 MODE_DISPLAY = {
-    MODE_1: "Basic (Config File)",
-    MODE_2: "Basic (Managed)",
-    MODE_3: "Advanced (Managed)",
+    MODE_1: "Locked by Config File",
+    MODE_2: "Managed (Read Only)",
+    MODE_3: "Managed (Advanced)",
 }
