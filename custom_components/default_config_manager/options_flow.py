@@ -73,7 +73,7 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             )] = cv.multi_select({item: item for item in static_integrations})
 
         return self.async_show_form(
-            step_id="user",
+            step_id="init",
             data_schema=vol.Schema(schema_dict),
             description_placeholders={
                 "mode_display": mode_display,
