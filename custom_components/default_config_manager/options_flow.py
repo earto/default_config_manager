@@ -85,4 +85,11 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
                 default=disabled_components,
             )] = cv.multi_select({item: item for item in static_integrations})
 
-        return self.async_show_form(step_id="init", data_schema=vol.Schema(schema_dict))
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(schema_dict),
+            description_placeholders={
+                "default_config_version": default_config_version,
+                "status": mode_display,
+            },
+        )
