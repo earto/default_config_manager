@@ -49,14 +49,14 @@ class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             _LOGGER.debug("Creating config entry with options=%s", user_input)
             return self.async_create_entry(
                 title=NAME,
-                data={},
+                data={},\
                 options={
                     CONF_ADVANCED_MODE: False,
                     CONF_COMPONENTS_TO_DISABLE: [],
                 },
             )
 
-        # Check if default_config is loaded in Home Assistant
+        # The Unified Source of Truth: Query the live registry directly
         yaml_config_enabled = "default_config" in self.hass.config.components
         _LOGGER.debug("default_config loaded by YAML=%s", yaml_config_enabled)
         
@@ -74,4 +74,3 @@ class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 "status": mode_display,
             },
         )
-    
