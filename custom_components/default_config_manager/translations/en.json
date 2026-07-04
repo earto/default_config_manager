@@ -17,7 +17,10 @@
         }
       }
     },
-    "error": { ... }
+    "error": {
+      "default_config_enabled": "default_config is still enabled in configuration.yaml. Remove it to manage default_config here.",
+      "advanced_warning": "Advanced mode allows disabling default_config integrations. Use with caution."
+    }
   },
   "options": {
     "step": {
@@ -34,5 +37,10 @@
       }
     }
   },
-  "issues": { ... }
+  "issues": {
+    "default_config_change": {
+      "title": "Default Config integration changed",
+      "description": "The integration '{component}' was {action} by Default Config Manager."
+    }
+  }
 }
