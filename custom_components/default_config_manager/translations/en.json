@@ -34,6 +34,9 @@
         "data": {
           "advanced_mode": "Enable advanced mode",
           "components_to_disable": "Disable integrations"
+        },
+        "data_description": {
+          "mode": ""
         }
       }
     }
