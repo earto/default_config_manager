@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Default Config Manager",
-        "description": "Set up the Default Config Manager integration."
+        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}\n\nStatus: {status}"
       },
       "init": {
         "title": "Default Config Manager",
@@ -17,10 +17,7 @@
         }
       }
     },
-    "error": {
-      "default_config_enabled": "default_config is still enabled in configuration.yaml. Remove it to manage default_config here.",
-      "advanced_warning": "Advanced mode allows disabling default_config integrations. Use with caution."
-    }
+    "error": { ... }
   },
   "options": {
     "step": {
@@ -37,10 +34,5 @@
       }
     }
   },
-  "issues": {
-    "default_config_change": {
-      "title": "Default Config integration changed",
-      "description": "The integration '{component}' was {action} by Default Config Manager."
-    }
-  }
+  "issues": { ... }
 }
