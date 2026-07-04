@@ -21,15 +21,19 @@
   },
   "options": {
     "step": {
-      "init": {
+      "init_yaml": {
+        "title": "Default Config Manager",
+        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}",
+        "data_description": {
+          "mode": "NOTE: Default Config Manager is ready to manage your default_config. Remove default_config from your configuration file and restart Home Assistant to enable management."
+        }
+      },
+      "init_managed": {
         "title": "Default Config Manager",
         "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}",
         "data": {
           "advanced_mode": "Enable advanced mode",
           "components_to_disable": "Disable integrations"
-        },
-        "data_description": {
-          "advanced_mode": "NOTE: Default Config Manager is ready to manage your default_config. Remove default_config from your configuration file and restart Home Assistant to enable management."
         }
       }
     }
