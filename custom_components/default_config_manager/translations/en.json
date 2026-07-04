@@ -7,7 +7,7 @@
       },
       "init": {
         "title": "Default Config Manager",
-        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}",
+        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}{note}",
         "data": {
           "advanced_mode": "Enable advanced mode",
           "components_to_disable": "Disable integrations"
@@ -23,7 +23,7 @@
     "step": {
       "init": {
         "title": "Default Config Manager",
-        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}",
+        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}{note}",
         "data": {
           "advanced_mode": "Enable advanced mode",
           "components_to_disable": "Disable integrations"
