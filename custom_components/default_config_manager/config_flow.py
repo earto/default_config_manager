@@ -56,14 +56,15 @@ class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 },
             )
 
-        # Detect configuration status for presentation
-        yaml_config_enabled = self.hass.data.setdefault(DOMAIN, {}).get("yaml_config", False)
+        # Check if default_config is loaded in Home Assistant
+        yaml_config_enabled = "default_config" in self.hass.config.components
+        _LOGGER.debug("default_config loaded by YAML=%s", yaml_config_enabled)
+        
         mode_code = MODE_1 if yaml_config_enabled else MODE_2
         mode_display = MODE_DISPLAY[mode_code]
         
         default_config_version = await get_default_config_version(self.hass)
-
-        _LOGGER.debug("config_flow showing form with version=%s and status=%s", default_config_version, mode_display)
+        _LOGGER.debug("default_config version=%s", default_config_version)
 
         return self.async_show_form(
             step_id="user",
@@ -73,3 +74,4 @@ class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 "status": mode_display,
             },
         )
+    
