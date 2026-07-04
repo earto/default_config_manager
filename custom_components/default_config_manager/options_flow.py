@@ -67,10 +67,6 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
                 "mode",
                 description={"suggested_value": mode_display},
             ): str,
-            vol.Optional(
-                "default_config version",
-                description={"suggested_value": default_config_version},
-            ): str,
         }
 
         if mode_code in (MODE_2, MODE_3):
