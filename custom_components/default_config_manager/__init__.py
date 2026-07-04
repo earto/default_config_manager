@@ -1,8 +1,8 @@
 """Init for Default Config Manager."""
 
-import asyncio
 from __future__ import annotations
 
+import asyncio
 import logging
 
 import homeassistant.components.default_config as ha_default_config
