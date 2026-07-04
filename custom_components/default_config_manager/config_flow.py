@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import Any
 
 import voluptuous as vol
-import homeassistant.helpers.config_validation as cv
 
 from homeassistant import config_entries
 from homeassistant.core import callback
@@ -16,9 +15,12 @@ from .const import (
     NAME,
     CONF_ADVANCED_MODE,
     CONF_COMPONENTS_TO_DISABLE,
+    MODE_1,
+    MODE_2,
+    MODE_3,
+    MODE_DISPLAY,
 )
-from .helpers import get_static_integrations
-from .options_flow import DefaultConfigManagerOptionsFlow
+from .helpers import get_default_config_version
 
 import logging
 _LOGGER = logging.getLogger(__name__)
@@ -49,32 +51,25 @@ class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 title=NAME,
                 data={},
                 options={
-                    CONF_ADVANCED_MODE: user_input.get(CONF_ADVANCED_MODE, False),
-                    CONF_COMPONENTS_TO_DISABLE: user_input.get(
-                        CONF_COMPONENTS_TO_DISABLE, []
-                    ),
+                    CONF_ADVANCED_MODE: False,
+                    CONF_COMPONENTS_TO_DISABLE: [],
                 },
             )
 
-        return await self._show_form()
+        # Detect configuration status for presentation
+        yaml_config_enabled = self.hass.data.setdefault(DOMAIN, {}).get("yaml_config", False)
+        mode_code = MODE_1 if yaml_config_enabled else MODE_2
+        mode_display = MODE_DISPLAY[mode_code]
+        
+        default_config_version = await get_default_config_version(self.hass)
 
-    async def _show_form(self):
-        """Show the configuration form."""
-        _LOGGER.debug("config_flow _show_form called")
-
-        static_integrations = await get_static_integrations(self.hass)
-        _LOGGER.debug("static_integrations=%s", static_integrations)
-
-        schema = vol.Schema(
-            {
-                vol.Optional(CONF_ADVANCED_MODE, default=False): bool,
-                vol.Optional(CONF_COMPONENTS_TO_DISABLE, default=[]): cv.multi_select(
-                    {item: item for item in static_integrations}
-                ),
-            }
-        )
+        _LOGGER.debug("config_flow showing form with version=%s and status=%s", default_config_version, mode_display)
 
         return self.async_show_form(
             step_id="user",
-            data_schema=schema,
+            data_schema=vol.Schema({}),
+            description_placeholders={
+                "default_config_version": default_config_version,
+                "status": mode_display,
+            },
         )
