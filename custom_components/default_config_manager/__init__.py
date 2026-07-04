@@ -147,5 +147,5 @@ async def update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
         _LOGGER.debug("Pruned invalid disabled components: %s", set(raw) - set(cleaned))
         hass.config_entries.async_update_entry(
             entry,
-            options={CONF_COMPONENTS_TO_DISABLE: cleaned},
+            options={**entry.options, CONF_COMPONENTS_TO_DISABLE: cleaned},
         )
