@@ -17,10 +17,10 @@ from .const import (
     CONF_COMPONENTS_TO_DISABLE,
     MODE_1,
     MODE_2,
-    MODE_3,
     MODE_DISPLAY,
 )
 from .helpers import get_default_config_version
+from .options_flow import DefaultConfigManagerOptionsFlow
 
 import logging
 _LOGGER = logging.getLogger(__name__)
