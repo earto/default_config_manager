@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Default Config Manager",
-        "description": "Set up the Default Config Manager integration."
+        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}\n\nStatus: {status}"
       },
       "init": {
         "title": "Default Config Manager",
