@@ -1,34 +1,50 @@
 {
-    "config": {
-        "abort": {
-            "single_instance_allowed": "Already configured. Only a single configuration possible."
-        },
-        "step": {
-            "user": {
-                "description": "Do you want to start setup?"
-            }
+  "config": {
+    "step": {
+      "user": {
+        "title": "Default Config Manager",
+        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}\n\nStatus: {status}"
+      },
+      "init": {
+        "title": "Default Config Manager",
+        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}",
+        "data": {
+          "advanced_mode": "Enable advanced mode",
+          "components_to_disable": "Disable integrations"
         }
+      }
     },
-    "issues": {
-        "restart_required": {
-            "fix_flow": {
-                "step": {
-                    "confirm": {
-                        "description": "The Default Config Disabler has made changes to your Home Assistant configuration that require a restart.\n\nSelect submit to restart Home Assistant now.",
-                        "title": "Restart Home Assistant"
-                    }
-                }
-            },
-            "title": "Home Assistant Restart Required"
-        }
-    },
-    "options": {
-        "step": {
-            "init": {
-                "data": {
-                    "components_to_disable": "default_config components to disable"
-                }
-            }
-        }
+    "error": {
+      "default_config_enabled": "default_config is still enabled in configuration.yaml. Remove it to manage default_config here.",
+      "advanced_warning": "Advanced mode allows disabling default_config integrations. Use with caution."
     }
+  },
+  "options": {
+    "step": {
+      "init_yaml": {
+        "title": "Default Config Manager",
+        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}",
+        "data_description": {
+          "mode": "NOTE: Default Config Manager is ready to manage your default_config. Remove default_config from your configuration file and restart Home Assistant to enable management."
+        }
+      },
+      "init_managed": {
+        "title": "Default Config Manager",
+        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}",
+        "data": {
+          "advanced_mode": "Enable advanced mode",
+          "components_to_disable": "Disable integrations"
+        },
+        "data_description": {
+          "mode": ""
+        }
+      }
+    }
+  },
+  "issues": {
+    "default_config_change": {
+      "title": "Default Config integration changed",
+      "description": "The integration '{component}' was {action} by Default Config Manager."
+    }
+  }
 }

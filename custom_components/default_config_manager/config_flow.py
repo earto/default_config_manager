@@ -1,84 +1,76 @@
-"""Config flow for Default Config Manager integration."""
+"""config_flow.py for Default Config Manager."""
 
 from __future__ import annotations
+
 from typing import Any
 
 import voluptuous as vol
 
 from homeassistant import config_entries
-from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.core import callback
-from homeassistant.helpers import config_validation as cv
+from homeassistant.config_entries import ConfigEntry
 
-from .const import CONF_COMPONENTS_TO_DISABLE, DOMAIN, NAME
-from .helpers import get_default_config_components
+from .const import (
+    DOMAIN,
+    NAME,
+    CONF_ADVANCED_MODE,
+    CONF_COMPONENTS_TO_DISABLE,
+    MODE_1,
+    MODE_2,
+    MODE_DISPLAY,
+)
+from .helpers import get_default_config_version
+from .options_flow import DefaultConfigManagerOptionsFlow
+
+import logging
+_LOGGER = logging.getLogger(__name__)
 
 
-class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle the config flow for Default Config Manager."""
+class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
+    """Handle a config flow for Default Config Manager."""
 
     VERSION = 1
 
-    async def async_step_user(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
-        """Handle the initial step."""
-        if self._async_current_entries():
-            return self.async_abort(reason="single_instance_allowed")
-
-        if user_input is not None:
-            return self.async_create_entry(title=NAME, data=user_input)
-
-        # No user input required — just create the entry
-        return self.async_show_form(step_id="user", data_schema=vol.Schema({}))
-
     @staticmethod
     @callback
-    def async_get_options_flow(
-        config_entry: config_entries.ConfigEntry,
-    ) -> config_entries.OptionsFlow:
+    def async_get_options_flow(config_entry: ConfigEntry):
         """Create the options flow."""
-        return OptionsFlowHandler(config_entry)
+        _LOGGER.debug(
+            "config_flow async_get_options_flow called for entry_id=%s",
+            config_entry.entry_id,
+        )
+        return DefaultConfigManagerOptionsFlow(config_entry)
 
+    async def async_step_user(self, user_input: dict[str, Any] | None = None):
+        """Handle the initial step."""
+        _LOGGER.debug("config_flow async_step_user called, user_input=%s", user_input)
 
-class OptionsFlowHandler(config_entries.OptionsFlow):
-    """Options flow for Default Config Manager."""
-
-    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
-        """Initialize options flow."""
-        super().__init__()
-        # FIX: config_entry is now a read‑only property in HA
-        self._config_entry = config_entry
-
-    async def async_step_init(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
-        """Manage the options."""
         if user_input is not None:
-            return self.async_create_entry(title="", data=user_input)
+            _LOGGER.debug("Creating config entry with options=%s", user_input)
+            return self.async_create_entry(
+                title=NAME,
+                data={},\
+                options={
+                    CONF_ADVANCED_MODE: False,
+                    CONF_COMPONENTS_TO_DISABLE: [],
+                },
+            )
 
-        # Load the list of default_config components
-        components = await self.hass.async_add_executor_job(
-            get_default_config_components
-        )
-
-        # Load previously selected components
-        selected_components = self._config_entry.options.get(
-            CONF_COMPONENTS_TO_DISABLE, []
-        )
-
-        # Filter out components that no longer exist
-        selected_components = [c for c in selected_components if c in components]
+        # The Unified Source of Truth: Query the live registry directly
+        yaml_config_enabled = "default_config" in self.hass.config.components
+        _LOGGER.debug("default_config loaded by YAML=%s", yaml_config_enabled)
+        
+        mode_code = MODE_1 if yaml_config_enabled else MODE_2
+        mode_display = MODE_DISPLAY[mode_code]
+        
+        default_config_version = await get_default_config_version(self.hass)
+        _LOGGER.debug("default_config version=%s", default_config_version)
 
         return self.async_show_form(
-            step_id="init",
-            data_schema=vol.Schema(
-                {
-                    vol.Optional(
-                        CONF_COMPONENTS_TO_DISABLE,
-                        default=selected_components,
-                    ): cv.multi_select(components),
-                }
-            ),
+            step_id="user",
+            data_schema=vol.Schema({}),
+            description_placeholders={
+                "default_config_version": default_config_version,
+                "status": mode_display,
+            },
         )
-
