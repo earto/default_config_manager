@@ -81,11 +81,16 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
                 default=disabled_components,
             )] = cv.multi_select({item: item for item in static_integrations})
 
+        note_text = ""
+        if mode_code == MODE_1:
+            note_text = "\n\nNOTE: Default Config Manager is ready to manage your default_config. Remove default_config from your configuration file and restart Home Assistant to enable management."
+
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema(schema_dict),
             description_placeholders={
                 "default_config_version": default_config_version,
                 "status": mode_display,
+                "note": note_text,
             },
         )
