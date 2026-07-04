@@ -48,7 +48,9 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             [],
         )
 
-        yaml_config_enabled = hass.data.setdefault(DOMAIN, {}).get("yaml_config", False)
+        # The Unified Source of Truth: Query the live registry directly
+        yaml_config_enabled = "default_config" in hass.config.components
+        _LOGGER.debug("default_config loaded by YAML=%s", yaml_config_enabled)
 
         # Mode detection
         if yaml_config_enabled:
