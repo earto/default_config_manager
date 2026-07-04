@@ -55,7 +55,6 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
     # Detect YAML default_config (Mode 1)
     yaml_config_enabled = "default_config" in hass.config.components
-    hass.data.setdefault(DOMAIN, {})["yaml_config"] = yaml_config_enabled
     _LOGGER.debug("yaml_config_enabled=%s", yaml_config_enabled)
 
     # Determine mode
