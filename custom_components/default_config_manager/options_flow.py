@@ -32,12 +32,51 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         self._config_entry = config_entry
 
     async def async_step_init(self, user_input=None):
-        """First step."""
-        return await self.async_step_user(user_input)
+        """First step dispatcher to routing methods."""
+        yaml_config_enabled = "default_config" in self.hass.config.components
+        _LOGGER.debug(
+            "options_flow async_step_init called: yaml_config_enabled=%s", 
+            yaml_config_enabled
+        )
+        
+        if yaml_config_enabled:
+            return await self.async_step_init_yaml(user_input)
+        return await self.async_step_init_managed(user_input)
 
-    async def async_step_user(self, user_input=None):
-        """Handle user options step."""
+    async def async_step_init_yaml(self, user_input=None):
+        """Handle options step for Mode 1 (YAML mode)."""
+        _LOGGER.debug("options_flow async_step_init_yaml called, user_input=%s", user_input)
+
         if user_input is not None:
+            _LOGGER.debug("Saving options for init_yaml with user_input=%s", user_input)
+            return self.async_create_entry(title="Options", data=user_input)
+
+        hass = self.hass
+        mode_display = MODE_DISPLAY[MODE_1]
+        default_config_version = await get_default_config_version(hass)
+
+        schema_dict = {
+            vol.Optional(
+                "mode",
+                description={"suggested_value": mode_display},
+            ): str,
+        }
+
+        return self.async_show_form(
+            step_id="init_yaml",
+            data_schema=vol.Schema(schema_dict),
+            description_placeholders={
+                "default_config_version": default_config_version,
+                "status": mode_display,
+            },
+        )
+
+    async def async_step_init_managed(self, user_input=None):
+        """Handle options step for Modes 2 & 3 (Managed/Advanced modes)."""
+        _LOGGER.debug("options_flow async_step_init_managed called, user_input=%s", user_input)
+
+        if user_input is not None:
+            _LOGGER.debug("Saving options for init_managed with user_input=%s", user_input)
             return self.async_create_entry(title="Options", data=user_input)
 
         hass = self.hass
@@ -48,18 +87,7 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             [],
         )
 
-        # The Unified Source of Truth: Query the live registry directly
-        yaml_config_enabled = "default_config" in hass.config.components
-        _LOGGER.debug("default_config loaded by YAML=%s", yaml_config_enabled)
-
-        # Mode detection
-        if yaml_config_enabled:
-            mode_code = MODE_1
-        elif advanced_mode:
-            mode_code = MODE_3
-        else:
-            mode_code = MODE_2
-
+        mode_code = MODE_3 if advanced_mode else MODE_2
         mode_display = MODE_DISPLAY[mode_code]
         default_config_version = await get_default_config_version(hass)
         static_integrations = await get_static_integrations(hass)
@@ -69,13 +97,11 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
                 "mode",
                 description={"suggested_value": mode_display},
             ): str,
-        }
-
-        if mode_code in (MODE_2, MODE_3):
-            schema_dict[vol.Optional(
+            vol.Optional(
                 CONF_ADVANCED_MODE,
                 default=advanced_mode,
-            )] = bool
+            ): bool,
+        }
 
         if mode_code == MODE_3:
             schema_dict[vol.Optional(
@@ -84,7 +110,7 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             )] = cv.multi_select({item: item for item in static_integrations})
 
         return self.async_show_form(
-            step_id="init",
+            step_id="init_managed",
             data_schema=vol.Schema(schema_dict),
             description_placeholders={
                 "default_config_version": default_config_version,
