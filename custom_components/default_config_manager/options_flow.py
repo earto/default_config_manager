@@ -100,7 +100,7 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             ): bool,
             vol.Optional(
                 "integration_list",
-                description={"suggested_value": active_components_csv}, # Set it here!
+                description={"suggested_value": active_components_csv},
             ): selector.TextSelector(
                 selector.TextSelectorConfig(
                     type=selector.TextSelectorType.TEXT,
