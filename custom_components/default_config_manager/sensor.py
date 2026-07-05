@@ -7,7 +7,7 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EntityCategory, __version__
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.device_registry import DeviceEntryType  # <-- Added this missing import!
+from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -22,7 +22,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the Default Config Manager diagnostic sensors."""
-    _LOGGER.debug("Initializing Default Config Hub sensor platform")
+    _LOGGER.debug("Initializing Default Config Manager sensor platform")
     
     if "default_config" in hass.config.components:
         return
@@ -36,25 +36,31 @@ async def async_setup_entry(
         entities.append(
             DefaultConfigDependencySensor(entry, component, disabled_components)
         )
-    _LOGGER.debug("Adding %s diagnostic entities to the Hub", len(entities))
+    _LOGGER.debug("Adding %s diagnostic entities", len(entities))
     
     async_add_entities(entities, update_before_add=True)
 
 
 class DefaultConfigDependencySensor(SensorEntity):
-    """Individual component loaded state."""
+    """Individual component service sensor."""
     _attr_has_entity_name = True
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(self, entry: ConfigEntry, component: str, disabled_components: list[str]) -> None:
         self._component = component
         self._is_disabled_by_user = component in disabled_components
-        self._attr_name = component.replace("_", " ").title()
+        
+        # The entity inside the card will simply be called "Status"
+        self._attr_name = "Status" 
+        
+        # Keep unique ID the same so history database doesn't break
         self._attr_unique_id = f"{entry.entry_id}_dep_{component}"
+        
+        # Each component registers as its own independent SERVICE device
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, entry.entry_id)},
-            name="Default Integrations",
-            manufacturer="Default Config Manager",
+            identifiers={(DOMAIN, f"{entry.entry_id}_{component}")},
+            name=component.replace("_", " ").title(),
+            manufacturer="Home Assistant Core",
             sw_version=__version__,
             entry_type=DeviceEntryType.SERVICE,
         )
