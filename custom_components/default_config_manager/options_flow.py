@@ -7,7 +7,6 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.helpers import selector
 
 from .const import (
     DOMAIN,
@@ -17,7 +16,7 @@ from .const import (
     MODE_3,
     MODE_DISPLAY,
 )
-from .helpers import get_static_integrations, get_default_config_version, get_running_integrations
+from .helpers import get_static_integrations, get_default_config_version
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -74,10 +73,8 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         _LOGGER.debug("options_flow async_step_init_managed called, user_input=%s", user_input)
 
         if user_input is not None:
-            # Strip the UI-only elements before saving
-            data = {k: v for k, v in user_input.items() if k not in ["mode", "running_integrations"]}
-            _LOGGER.debug("Saving options for init_managed with user_input=%s", data)
-            return self.async_create_entry(title="Options", data=data)
+            _LOGGER.debug("Saving options for init_managed with user_input=%s", user_input)
+            return self.async_create_entry(title="Options", data=user_input)
 
         hass = self.hass
 
@@ -86,7 +83,9 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         mode_display = MODE_DISPLAY[mode_code]
         
         default_config_version = await get_default_config_version(hass)
-        static_integrations = await get_running_integrations(hass)
+        static_integrations = await get_static_integrations(hass)
+        
+        # Generate the continuous CSV list string
         active_components_csv = ", ".join(static_integrations)
 
         schema_dict = {
@@ -98,16 +97,6 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
                 CONF_ADVANCED_MODE,
                 default=advanced_mode,
             ): bool,
-            vol.Optional(
-                "running_integrations",
-                description={"suggested_value": active_components_csv},
-            ): selector.TextSelector(
-                selector.TextSelectorConfig(
-                    type=selector.TextSelectorType.TEXT,
-                    multiline=True,
-                    readonly=True,
-                )
-            ),
         }
 
         return self.async_show_form(
@@ -116,6 +105,6 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             description_placeholders={
                 "default_config_version": default_config_version,
                 "status": mode_display,
-                "integration_list": active_components_csv,
+                "active_components": active_components_csv,
             },
         )
