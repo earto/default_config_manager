@@ -86,7 +86,7 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         mode_display = MODE_DISPLAY[mode_code]
         
         default_config_version = await get_default_config_version(hass)
-        static_integrations = await get_static_integrations(hass)
+        static_integrations = await get_running_integrations(hass)
         active_components_csv = ", ".join(static_integrations)
 
         schema_dict = {
