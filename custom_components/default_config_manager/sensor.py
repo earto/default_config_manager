@@ -54,7 +54,7 @@ class DefaultConfigDependencySensor(SensorEntity):
             identifiers={(DOMAIN, entry.entry_id)},
             name="Default Config Hub",
             manufacturer="Default Config Manager",
-            sw_version=__version__,
+            model=f"Default Config {__version__}",
         )
 
     def update(self) -> None:
