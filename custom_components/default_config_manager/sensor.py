@@ -52,7 +52,7 @@ class DefaultConfigDependencySensor(SensorEntity):
         self._attr_unique_id = f"{entry.entry_id}_dep_{component}"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
-            name="Default Config Hub",
+            name="Default Integrations",
             manufacturer="Default Config Manager",
             model=f"Default Config {__version__}",
         )
