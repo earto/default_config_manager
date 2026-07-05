@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 
 import homeassistant.components.default_config as ha_default_config
@@ -101,10 +102,14 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         _LOGGER.debug("Mode 3 enabled components: %s", enabled_components)
         _LOGGER.debug("Mode 3 disabled components: %s", disabled_components)
 
-    # Set up only enabled components
+    # Set up only enabled components concurrently (same as factory startup)
+    setup_tasks = []
     for component in enabled_components:
         _LOGGER.debug("Setting up default_config dependency: %s", component)
-        await async_setup_component(hass, component, config)
+        setup_tasks.append(async_setup_component(hass, component, config))
+
+    if setup_tasks:
+        await asyncio.gather(*setup_tasks)
 
     _LOGGER.debug("Setup of default_config dependencies complete")
 
@@ -142,5 +147,5 @@ async def update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
         _LOGGER.debug("Pruned invalid disabled components: %s", set(raw) - set(cleaned))
         hass.config_entries.async_update_entry(
             entry,
-            options={CONF_COMPONENTS_TO_DISABLE: cleaned},
+            options={**entry.options, CONF_COMPONENTS_TO_DISABLE: cleaned},
         )
