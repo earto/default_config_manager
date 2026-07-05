@@ -17,7 +17,7 @@ from .const import (
     MODE_3,
     MODE_DISPLAY,
 )
-from .helpers import get_static_integrations, get_default_config_version
+from .helpers import get_static_integrations, get_default_config_version, get_running_integrations
 
 _LOGGER = logging.getLogger(__name__)
 
