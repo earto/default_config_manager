@@ -98,7 +98,10 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
                 CONF_ADVANCED_MODE,
                 default=advanced_mode,
             ): bool,
-            vol.Optional("integration_list"): selector.TextSelector(
+            vol.Optional(
+                "integration_list",
+                description={"suggested_value": active_components_csv}, # Set it here!
+            ): selector.TextSelector(
                 selector.TextSelectorConfig(
                     type=selector.TextSelectorType.TEXT,
                     multiline=True,
