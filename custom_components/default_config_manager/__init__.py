@@ -15,7 +15,7 @@ from homeassistant.helpers import (
     issue_registry as ir, 
     device_registry as dr
 )
-from homeassistant.components import repairs
+from homeassistant.components.repairs import async_register_repairs_flow
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.setup import async_setup_component
 
