@@ -2,24 +2,21 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 import voluptuous as vol
-import homeassistant.helpers.config_validation as cv
 from homeassistant import config_entries
 
 from .const import (
     DOMAIN,
     CONF_ADVANCED_MODE,
-    CONF_COMPONENTS_TO_DISABLE,
     MODE_1,
     MODE_2,
     MODE_3,
     MODE_DISPLAY,
 )
 from .helpers import get_static_integrations, get_default_config_version
-
-import logging
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -31,7 +28,7 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         """Initialize options flow."""
         self._config_entry = config_entry
 
-    async def async_step_init(self, user_input=None):
+    async def async_step_init(self, user_input: dict[str, Any] | None = None):
         """First step dispatcher to routing methods."""
         yaml_config_enabled = "default_config" in self.hass.config.components
         _LOGGER.debug(
@@ -43,7 +40,7 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             return await self.async_step_init_yaml(user_input)
         return await self.async_step_init_managed(user_input)
 
-    async def async_step_init_yaml(self, user_input=None):
+    async def async_step_init_yaml(self, user_input: dict[str, Any] | None = None):
         """Handle options step for Mode 1 (YAML mode)."""
         _LOGGER.debug("options_flow async_step_init_yaml called, user_input=%s", user_input)
 
@@ -71,7 +68,7 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             },
         )
 
-    async def async_step_init_managed(self, user_input=None):
+    async def async_step_init_managed(self, user_input: dict[str, Any] | None = None):
         """Handle options step for Modes 2 & 3 (Managed/Advanced modes)."""
         _LOGGER.debug("options_flow async_step_init_managed called, user_input=%s", user_input)
 
@@ -82,15 +79,14 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         hass = self.hass
 
         advanced_mode = self._config_entry.options.get(CONF_ADVANCED_MODE, False)
-        disabled_components = self._config_entry.options.get(
-            CONF_COMPONENTS_TO_DISABLE,
-            [],
-        )
-
         mode_code = MODE_3 if advanced_mode else MODE_2
         mode_display = MODE_DISPLAY[mode_code]
+        
         default_config_version = await get_default_config_version(hass)
         static_integrations = await get_static_integrations(hass)
+        
+        # Generate the continuous CSV list string
+        active_components_csv = ", ".join(static_integrations)
 
         schema_dict = {
             vol.Optional(
@@ -103,17 +99,12 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             ): bool,
         }
 
-        if mode_code == MODE_3:
-            schema_dict[vol.Optional(
-                CONF_COMPONENTS_TO_DISABLE,
-                default=disabled_components,
-            )] = cv.multi_select({item: item for item in static_integrations})
-
         return self.async_show_form(
             step_id="init_managed",
             data_schema=vol.Schema(schema_dict),
             description_placeholders={
                 "default_config_version": default_config_version,
                 "status": mode_display,
+                "active_components": active_components_csv,
             },
         )
