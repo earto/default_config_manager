@@ -7,6 +7,7 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EntityCategory, __version__
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceEntryType  # <-- Added this missing import!
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -55,7 +56,7 @@ class DefaultConfigDependencySensor(SensorEntity):
             name="Default Integrations",
             manufacturer="Default Config Manager",
             sw_version=__version__,
-            entry_type=DeviceEntryType.SERVICE, # <--- This does the magic!
+            entry_type=DeviceEntryType.SERVICE,
         )
 
     def update(self) -> None:
