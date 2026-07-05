@@ -105,6 +105,7 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
                 selector.TextSelectorConfig(
                     type=selector.TextSelectorType.TEXT,
                     multiline=True,
+                    readonly=True,
                 )
             ),
         }
