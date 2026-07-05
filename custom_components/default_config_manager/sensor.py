@@ -7,11 +7,12 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EntityCategory, __version__
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import CONF_COMPONENTS_TO_DISABLE, DOMAIN
+from .const import CONF_ADVANCED_MODE, DOMAIN
 from .helpers import get_static_integrations
 
 _LOGGER = logging.getLogger(__name__)
@@ -27,17 +28,27 @@ async def async_setup_entry(
     if "default_config" in hass.config.components:
         return
 
-    components = await get_static_integrations(hass)
-    disabled_components = entry.options.get(CONF_COMPONENTS_TO_DISABLE, [])
+    advanced_mode = entry.options.get(CONF_ADVANCED_MODE, False)
+    
+    # Mode 2: Clean up the registry to revert to factory state
+    if not advanced_mode:
+        _LOGGER.debug("Basic Mode active. Purging proxy devices from registry.")
+        device_registry = dr.async_get(hass)
+        devices = dr.async_entries_for_config_entry(device_registry, entry.entry_id)
+        for device in devices:
+            device_registry.async_remove_device(device.id)
+        return
 
+    # Mode 3: Advanced Mode active. Build the proxy devices.
+    components = await get_static_integrations(hass)
     entities: list[SensorEntity] = []
 
     for component in components:
         entities.append(
-            DefaultConfigDependencySensor(entry, component, disabled_components)
+            DefaultConfigDependencySensor(entry, component)
         )
-    _LOGGER.debug("Adding %s diagnostic entities", len(entities))
     
+    _LOGGER.debug("Adding %s diagnostic entities", len(entities))
     async_add_entities(entities, update_before_add=True)
 
 
@@ -46,17 +57,10 @@ class DefaultConfigDependencySensor(SensorEntity):
     _attr_has_entity_name = True
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
-    def __init__(self, entry: ConfigEntry, component: str, disabled_components: list[str]) -> None:
+    def __init__(self, entry: ConfigEntry, component: str) -> None:
         self._component = component
-        self._is_disabled_by_user = component in disabled_components
-        
-        # The entity inside the card will simply be called "Status"
         self._attr_name = "Status" 
-        
-        # Keep unique ID the same so history database doesn't break
         self._attr_unique_id = f"{entry.entry_id}_dep_{component}"
-        
-        # Each component registers as its own independent SERVICE device
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"{entry.entry_id}_{component}")},
             name=component.replace("_", " ").title(),
@@ -67,9 +71,7 @@ class DefaultConfigDependencySensor(SensorEntity):
 
     def update(self) -> None:
         """Check live component registry."""
-        if self._is_disabled_by_user:
-            self._attr_native_value = "Disabled"
-        elif self._component in self.hass.config.components:
+        if self._component in self.hass.config.components:
             self._attr_native_value = "Running"
         else:
             self._attr_native_value = "Disconnected"
