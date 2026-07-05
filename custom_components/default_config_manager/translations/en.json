@@ -33,7 +33,7 @@
         "data": {
           "mode": "Status",
           "advanced_mode": "Enable advanced mode",
-          "integration_list": "Managed Integrations"
+          "running_integrations": "Running Integrations"
         }
       }
     }
