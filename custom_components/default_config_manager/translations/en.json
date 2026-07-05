@@ -9,8 +9,7 @@
         "title": "Default Config Manager",
         "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}",
         "data": {
-          "advanced_mode": "Enable advanced mode",
-          "components_to_disable": "Disable integrations"
+          "advanced_mode": "Enable advanced mode"
         }
       }
     },
@@ -32,11 +31,10 @@
         "title": "Default Config Manager",
         "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}",
         "data": {
-          "advanced_mode": "Enable advanced mode",
-          "components_to_disable": "Disable integrations"
+          "advanced_mode": "Enable advanced mode"
         },
         "data_description": {
-          "mode": ""
+          "mode": "Managed Integrations: {active_components}"
         }
       }
     }
