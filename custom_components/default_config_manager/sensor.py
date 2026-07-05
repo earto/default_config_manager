@@ -21,6 +21,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the Default Config Manager diagnostic sensors."""
+    _LOGGER.debug("Initializing Default Config Hub sensor platform")
     
     if "default_config" in hass.config.components:
         return
@@ -36,7 +37,8 @@ async def async_setup_entry(
         entities.append(
             DefaultConfigDependencySensor(entry, component, disabled_components)
         )
-
+    _LOGGER.debug("Adding %s diagnostic entities to the Hub", len(entities))
+    
     async_add_entities(entities, update_before_add=True)
 
 
