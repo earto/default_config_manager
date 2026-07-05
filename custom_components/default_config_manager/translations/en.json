@@ -9,8 +9,7 @@
         "title": "Default Config Manager",
         "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}",
         "data": {
-          "advanced_mode": "Enable advanced mode",
-          "components_to_disable": "Disable integrations"
+          "advanced_mode": "Enable advanced mode"
         }
       }
     },
@@ -32,19 +31,26 @@
         "title": "Default Config Manager",
         "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}",
         "data": {
-          "advanced_mode": "Enable advanced mode",
-          "components_to_disable": "Disable integrations"
+          "advanced_mode": "Enable advanced mode"
         },
         "data_description": {
-          "mode": ""
+          "mode": "Managed Integrations: {active_components}"
         }
       }
     }
   },
   "issues": {
-    "default_config_change": {
-      "title": "Default Config integration changed",
-      "description": "The integration '{component}' was {action} by Default Config Manager."
+    "restart_required": {
+      "title": "Restart Required",
+      "description": "Changes to your Default Config integrations have been detected. A restart is required for these changes to take effect.",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Restart Home Assistant",
+            "description": "Are you sure you want to restart Home Assistant to apply your changes?"
+          }
+        }
+      }
     }
   }
 }

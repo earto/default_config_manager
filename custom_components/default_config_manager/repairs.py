@@ -1,45 +1,35 @@
 """Repairs for Default Config Manager."""
 
 from __future__ import annotations
+from typing import Any
 
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import issue_registry as ir
-
-from .const import DOMAIN
+from homeassistant.components.repairs import RepairsFlow
 
 
-def create_integration_change_issue(
+class RestartRequiredFlow(RepairsFlow):
+    """Handler for an issue requiring a restart."""
+
+    async def async_step_init(self, user_input: dict[str, Any] | None = None):
+        """Handle the initialization step."""
+        return await self.async_step_confirm()
+
+    async def async_step_confirm(self, user_input: dict[str, Any] | None = None):
+        """Handle the confirmation step."""
+        if user_input is not None:
+            # Trigger the actual restart
+            await self.hass.services.async_call("homeassistant", "restart")
+            return self.async_create_entry(title="", data={})
+
+        return self.async_show_form(step_id="confirm")
+
+
+async def async_create_fix_flow(
     hass: HomeAssistant,
-    component: str,
-    action: str,
-) -> None:
-    """Create a Repair issue when a default_config integration is enabled or disabled.
-
-    This is the only Repair used by Default Config Manager.
-    It informs the user that a system-level default_config component
-    has been modified, which is meaningful and actionable.
-    """
-
-    ir.async_create_issue(
-        hass,
-        DOMAIN,
-        f"default_config_change_{component}",
-        is_fixable=False,
-        is_persistent=True,
-        severity=ir.IssueSeverity.WARNING,
-        translation_key="default_config_change",
-        translation_placeholders={
-            "component": component,
-            "action": action,
-        },
-    )
-
-
-def clear_integration_change_issue(hass: HomeAssistant, component: str) -> None:
-    """Clear the Repair issue for a specific component."""
-    ir.async_delete_issue(
-        hass,
-        DOMAIN,
-        f"default_config_change_{component}",
-    )
-
+    issue_id: str,
+    data: dict[str, str | int | float | None] | None,
+) -> RepairsFlow | None:
+    """Create flow."""
+    if issue_id == "restart_required":
+        return RestartRequiredFlow()
+    return None
