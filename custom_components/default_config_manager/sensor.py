@@ -52,9 +52,9 @@ class DefaultConfigDependencySensor(SensorEntity):
         self._attr_unique_id = f"{entry.entry_id}_dep_{component}"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
-            name="Integrations",
+            name="Default Integrations",
             manufacturer="Default Config Manager",
-            model=f"default_config {__version__}",
+            model=f"Default Config {__version__}",
         )
 
     def update(self) -> None:
