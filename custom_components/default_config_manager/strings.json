@@ -3,14 +3,13 @@
     "step": {
       "user": {
         "title": "Default Config Manager",
-        "description": "Set up the Default Config Manager integration."
+        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}\n\nStatus: {status}"
       },
       "init": {
         "title": "Default Config Manager",
-        "description": "Default Config version: {default_config_version}\n\n{status}",
+        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}",
         "data": {
-          "advanced_mode": "Enable advanced mode",
-          "components_to_disable": "Disable integrations"
+          "advanced_mode": "Enable advanced mode"
         }
       }
     },
@@ -21,12 +20,21 @@
   },
   "options": {
     "step": {
-      "init": {
+      "init_yaml": {
         "title": "Default Config Manager",
-        "description": "Default Config version: {default_config_version}\n\n{status}",
+        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}",
+        "data_description": {
+          "mode": "NOTE: Default Config Manager is ready to manage your default_config. Remove default_config from your configuration file and restart Home Assistant to enable management."
+        }
+      },
+      "init_managed": {
+        "title": "Default Config Manager",
+        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}",
         "data": {
-          "advanced_mode": "Enable advanced mode",
-          "components_to_disable": "Disable integrations"
+          "advanced_mode": "Enable advanced mode"
+        },
+        "data_description": {
+          "mode": "Managed Integrations: {active_components}"
         }
       }
     }
@@ -35,6 +43,18 @@
     "default_config_change": {
       "title": "Default Config integration changed",
       "description": "The integration '{component}' was {action} by Default Config Manager."
+    },
+    "restart_required": {
+      "title": "Restart Required",
+      "description": "Changes to your Default Config integrations have been detected. A restart is required for these changes to take effect.",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Restart Home Assistant",
+            "description": "Are you sure you want to restart Home Assistant to apply your changes?"
+          }
+        }
+      }
     }
   }
 }
