@@ -23,8 +23,8 @@ async def get_static_integrations(hass: HomeAssistant) -> List[str]:
         _LOGGER.error("Failed to load default_config manifest: %s", err)
         return []
 
-async def get_active_running_integrations(hass: HomeAssistant) -> List[str]:
-    """Return default integrations that are currently active, i.e. in hass.config.components."""
+async def get_running_integrations(hass: HomeAssistant) -> List[str]:
+    """Return default integrations that are currently running, i.e. in hass.config.components."""
     potential = await get_static_integrations(hass)
     return [comp for comp in potential if comp in hass.config.components]
 
