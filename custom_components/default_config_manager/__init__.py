@@ -10,11 +10,11 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.const import Platform
 from homeassistant.helpers import config_validation as cv, issue_registry as ir
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.setup import async_setup_component
 
 from .const import (
-    CONF_COMPONENTS_TO_DISABLE,
     DOMAIN,
     CONF_ADVANCED_MODE,
     MODE_1,
@@ -44,31 +44,31 @@ def _delete_restart_issue(hass: HomeAssistant) -> None:
     ir.async_delete_issue(hass, DOMAIN, "restart_required")
 
 
-def _filter_disabled_list(disabled: list[str], manifest: list[str]) -> list[str]:
-    """Return only disabled items that still exist in the manifest."""
-    return [c for c in disabled if c in manifest]
-
-
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Default Config Manager integration."""
     _LOGGER.debug("Setting up Default Config Manager")
 
-    # Clear any stale restart-required issue
     _delete_restart_issue(hass)
 
-    # Detect YAML default_config (Mode 1)
     yaml_config_enabled = "default_config" in hass.config.components
-    _LOGGER.debug("yaml_config_enabled=%s", yaml_config_enabled)
-
-    # Determine mode
+    components = await get_static_integrations(hass)
+    
     advanced_mode = False
     disabled_components: list[str] = []
 
+    # Read config entries and check device registry native states
     for entry in hass.config_entries.async_entries(DOMAIN):
         if entry.options.get(CONF_ADVANCED_MODE, False):
             advanced_mode = True
-        raw = entry.options.get(CONF_COMPONENTS_TO_DISABLE, [])
-        disabled_components.extend(raw)
+            device_registry = dr.async_get(hass)
+            
+            # The Registry Lookup: Find which proxy devices the user disabled natively
+            for component in components:
+                device = device_registry.async_get_device(
+                    identifiers={(DOMAIN, f"{entry.entry_id}_{component}")}
+                )
+                if device and device.disabled_by:
+                    disabled_components.append(component)
 
     if yaml_config_enabled:
         mode_code = MODE_1
@@ -79,53 +79,28 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
     _LOGGER.info("Default Config Manager running in mode_code=%s", mode_code)
 
-    # Mode 1: YAML default_config → do nothing
     if mode_code == MODE_1:
-        _LOGGER.info("default_config is enabled in YAML; manager is inactive.")
         return True
 
-    # Get default_config dependencies from manifest (static integrations)
-    _LOGGER.debug("Getting default_config dependencies from manifest")
-    components = await get_static_integrations(hass)
-    _LOGGER.debug("Got default_config dependencies: %s", components)
-
-    # Validate disabled list
-    disabled_components = _filter_disabled_list(disabled_components, components)
-    _LOGGER.debug("Validated disabled components: %s", disabled_components)
-
-    # Mode 2: Basic (Managed) → no disabling, just set up everything
     if mode_code == MODE_2:
         enabled_components = components
-        _LOGGER.debug("Mode 2 enabled components: %s", enabled_components)
-
-    # Mode 3: Advanced (Managed) → disable selected components
     else:
         enabled_components = [c for c in components if c not in disabled_components]
-        _LOGGER.debug("Mode 3 enabled components: %s", enabled_components)
-        _LOGGER.debug("Mode 3 disabled components: %s", disabled_components)
+        _LOGGER.debug("Mode 3 native disabled components: %s", disabled_components)
 
-    # Set up only enabled components concurrently (same as factory startup)
     setup_tasks = []
     for component in enabled_components:
-        _LOGGER.debug("Setting up default_config dependency: %s", component)
         setup_tasks.append(async_setup_component(hass, component, config))
 
     if setup_tasks:
         await asyncio.gather(*setup_tasks)
 
-    _LOGGER.debug("Setup of default_config dependencies complete")
-
-    # Run built-in default_config conditional setup
-    _LOGGER.debug("Running built-in default_config conditional setup")
     await ha_default_config.async_setup(hass, config)
-
-    _LOGGER.debug("Default Config Manager setup complete")
     return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up a config entry for Default Config Manager."""
-    _LOGGER.debug("Setting up Default Config Manager entry")
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(update_listener))
     return True
@@ -133,22 +108,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry for Default Config Manager."""
-    _LOGGER.debug("Unloading Default Config Manager entry")
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
 
 async def update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Handle options update."""
-    _LOGGER.debug("Validating updated disabled components")
-
-    components = await get_static_integrations(hass)
-
-    raw = entry.options.get(CONF_COMPONENTS_TO_DISABLE, [])
-    cleaned = _filter_disabled_list(raw, components)
-
-    if cleaned != raw:
-        _LOGGER.debug("Pruned invalid disabled components: %s", set(raw) - set(cleaned))
-        hass.config_entries.async_update_entry(
-            entry,
-            options={**entry.options, CONF_COMPONENTS_TO_DISABLE: cleaned},
-        )
+    _LOGGER.debug("Options updated. Creating restart issue to apply changes.")
+    
+    # Whenever the user toggles Advanced Mode, require a restart
+    _create_restart_issue(hass)
+    
+    # Reload the config entry to trigger sensor.py cleanup/generation immediately
+    await hass.config_entries.async_reload(entry.entry_id)
