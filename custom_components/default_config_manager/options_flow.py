@@ -75,7 +75,7 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
 
         if user_input is not None:
             # Strip the UI-only elements before saving
-            data = {k: v for k, v in user_input.items() if k not in ["mode", "integration_list"]}
+            data = {k: v for k, v in user_input.items() if k not in ["mode", "running_integrations"]}
             _LOGGER.debug("Saving options for init_managed with user_input=%s", data)
             return self.async_create_entry(title="Options", data=data)
 
@@ -99,7 +99,7 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
                 default=advanced_mode,
             ): bool,
             vol.Optional(
-                "integration_list",
+                "running_integrations",
                 description={"suggested_value": active_components_csv},
             ): selector.TextSelector(
                 selector.TextSelectorConfig(
