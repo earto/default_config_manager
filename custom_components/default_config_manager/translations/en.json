@@ -40,20 +40,16 @@
     }
   },
   "issues": {
-    "default_config_change": {
-      "title": "Default Config integration changed",
-      "description": "The integration '{component}' was {action} by Default Config Manager."
-    },
     "restart_required": {
       "title": "Restart Required",
-      "description": "Changes to your Default Config integrations have been detected. A restart is required for these changes to take effect."
-    }
-  },
-  "repairs": {
-    "restart_required": {
-      "confirm": {
-        "title": "Restart Home Assistant",
-        "description": "Are you sure you want to restart Home Assistant to apply your changes?"
+      "description": "Changes to your Default Config integrations have been detected. A restart is required for these changes to take effect.",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Restart Home Assistant",
+            "description": "Are you sure you want to restart Home Assistant to apply your changes?"
+          }
+        }
       }
     }
   }
