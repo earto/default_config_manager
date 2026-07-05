@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from typing import Any
 
 import homeassistant.components.default_config as ha_default_config
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.const import Platform
-from homeassistant.helpers import config_validation as cv, issue_registry as ir
-from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import config_validation as cv, issue_registry as ir, device_registry as dr, repairs
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.setup import async_setup_component
 
@@ -28,41 +28,51 @@ CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 _LOGGER = logging.getLogger(__name__)
 
+# --- Repair Flow Handling ---
+
+class RestartRequiredFlow(repairs.RepairsFlow):
+    """Handler for an issue requiring a restart."""
+    async def async_step_init(self, user_input: dict[str, Any] | None = None):
+        return await self.async_step_confirm()
+
+    async def async_step_confirm(self, user_input: dict[str, Any] | None = None):
+        if user_input is not None:
+            await self.hass.services.async_call("homeassistant", "restart")
+            return self.async_create_entry(data={})
+        return self.async_show_form(step_id="confirm")
 
 def _create_restart_issue(hass: HomeAssistant) -> None:
     ir.async_create_issue(
-        hass,
-        DOMAIN,
-        "restart_required",
+        hass, DOMAIN, "restart_required",
         is_fixable=True,
         severity=ir.IssueSeverity.WARNING,
         translation_key="restart_required",
     )
 
-
 def _delete_restart_issue(hass: HomeAssistant) -> None:
     ir.async_delete_issue(hass, DOMAIN, "restart_required")
 
+# --- Setup Logic ---
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Default Config Manager integration."""
     _LOGGER.debug("Setting up Default Config Manager")
 
+    # 1. Registration Phase
+    repairs.async_register_repairs_flow(hass, DOMAIN, "restart_required", RestartRequiredFlow)
     _delete_restart_issue(hass)
 
+    # 2. Detection Phase
     yaml_config_enabled = "default_config" in hass.config.components
     components = await get_static_integrations(hass)
     
     advanced_mode = False
     disabled_components: list[str] = []
 
-    # Read config entries and check device registry native states
     for entry in hass.config_entries.async_entries(DOMAIN):
         if entry.options.get(CONF_ADVANCED_MODE, False):
             advanced_mode = True
             device_registry = dr.async_get(hass)
-            
-            # The Registry Lookup: Find which proxy devices the user disabled natively
             for component in components:
                 device = device_registry.async_get_device(
                     identifiers={(DOMAIN, f"{entry.entry_id}_{component}")}
@@ -70,53 +80,33 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
                 if device and device.disabled_by:
                     disabled_components.append(component)
 
-    if yaml_config_enabled:
-        mode_code = MODE_1
-    elif advanced_mode:
-        mode_code = MODE_3
-    else:
-        mode_code = MODE_2
-
+    # 3. Execution Phase
+    mode_code = MODE_1 if yaml_config_enabled else (MODE_3 if advanced_mode else MODE_2)
     _LOGGER.info("Default Config Manager running in mode_code=%s", mode_code)
 
     if mode_code == MODE_1:
         return True
 
-    if mode_code == MODE_2:
-        enabled_components = components
-    else:
-        enabled_components = [c for c in components if c not in disabled_components]
-        _LOGGER.debug("Mode 3 native disabled components: %s", disabled_components)
-
-    setup_tasks = []
-    for component in enabled_components:
-        setup_tasks.append(async_setup_component(hass, component, config))
-
+    enabled_components = components if mode_code == MODE_2 else [c for c in components if c not in disabled_components]
+    
+    setup_tasks = [async_setup_component(hass, c, config) for c in enabled_components]
     if setup_tasks:
         await asyncio.gather(*setup_tasks)
 
     await ha_default_config.async_setup(hass, config)
     return True
 
+# --- Entry Point Handling ---
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up a config entry for Default Config Manager."""
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(update_listener))
     return True
 
-
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Unload a config entry for Default Config Manager."""
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
-
 async def update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Handle options update."""
-    _LOGGER.debug("Options updated. Creating restart issue to apply changes.")
-    
-    # Whenever the user toggles Advanced Mode, require a restart
+    _LOGGER.debug("Options updated. Creating restart issue.")
     _create_restart_issue(hass)
-    
-    # Reload the config entry to trigger sensor.py cleanup/generation immediately
     await hass.config_entries.async_reload(entry.entry_id)
