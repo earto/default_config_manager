@@ -13,9 +13,9 @@ from homeassistant.const import Platform
 from homeassistant.helpers import (
     config_validation as cv, 
     issue_registry as ir, 
-    device_registry as dr, 
-    repairs
+    device_registry as dr
 )
+from homeassistant.components import repairs
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.setup import async_setup_component
 
