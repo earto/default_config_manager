@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from typing import Any
-
+import logging
 import voluptuous as vol
 
 from homeassistant import config_entries
@@ -14,17 +14,14 @@ from .const import (
     DOMAIN,
     NAME,
     CONF_ADVANCED_MODE,
-    CONF_COMPONENTS_TO_DISABLE,
     MODE_1,
     MODE_2,
     MODE_DISPLAY,
 )
-from .helpers import get_default_config_version
+from .helpers import get_default_config_version, get_static_integrations
 from .options_flow import DefaultConfigManagerOptionsFlow
 
-import logging
 _LOGGER = logging.getLogger(__name__)
-
 
 class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Default Config Manager."""
@@ -49,10 +46,9 @@ class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             _LOGGER.debug("Creating config entry with options=%s", user_input)
             return self.async_create_entry(
                 title=NAME,
-                data={},\
+                data={},
                 options={
                     CONF_ADVANCED_MODE: False,
-                    CONF_COMPONENTS_TO_DISABLE: [],
                 },
             )
 
@@ -66,11 +62,16 @@ class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         default_config_version = await get_default_config_version(self.hass)
         _LOGGER.debug("default_config version=%s", default_config_version)
 
+        # Generate the CSV list of active integrations for the UI description
+        components = await get_static_integrations(self.hass)
+        active_components_csv = ", ".join(components)
+
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema({}),
             description_placeholders={
                 "default_config_version": default_config_version,
                 "status": mode_display,
+                "active_components": active_components_csv,
             },
         )
