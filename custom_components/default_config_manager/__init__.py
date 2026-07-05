@@ -15,7 +15,6 @@ from homeassistant.helpers import (
     issue_registry as ir, 
     device_registry as dr
 )
-from homeassistant.components.repairs import RepairsFlow, async_register_repairs_flow
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.setup import async_setup_component
 
@@ -32,25 +31,6 @@ PLATFORMS = [Platform.SENSOR]
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 _LOGGER = logging.getLogger(__name__)
-
-
-# --- Repair Flow Handling ---
-
-class RestartRequiredFlow(RepairsFlow):
-    """Handler for an issue requiring a restart."""
-
-    async def async_step_init(self, user_input: dict[str, Any] | None = None):
-        """Handle the initialization step."""
-        return await self.async_step_confirm()
-
-    async def async_step_confirm(self, user_input: dict[str, Any] | None = None):
-        """Handle the confirmation step."""
-        if user_input is not None:
-            # Trigger the actual restart
-            await self.hass.services.async_call("homeassistant", "restart")
-            return self.async_create_entry(data={})
-
-        return self.async_show_form(step_id="confirm")
 
 
 def _create_restart_issue(hass: HomeAssistant) -> None:
@@ -76,10 +56,6 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Default Config Manager integration."""
     _LOGGER.debug("Setting up Default Config Manager")
 
-    # Register the repair flow
-    async_register_repairs_flow(
-        hass, DOMAIN, "restart_required", RestartRequiredFlow
-    )
     _delete_restart_issue(hass)
 
     yaml_config_enabled = "default_config" in hass.config.components
