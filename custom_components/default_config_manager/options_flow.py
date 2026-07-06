@@ -124,7 +124,9 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
                 "integration_list",
                 default=active_components_text,
             ): TextSelector(
-                TextSelectorConfig(multiline=True)
+                TextSelectorConfig(
+                    type=TextSelectorType.TEXT,
+                )
             ),
         }
 
