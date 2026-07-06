@@ -32,14 +32,13 @@
       },
       "init_managed": {
         "title": "Default Config Manager",
-        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}",
         "sections": {
           "mode_section": {
-            "name": "Configuration Mode",
-            "description": "Select the operating mode for this integration."
+            "name": "Overview",
+            "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}"
           },
           "integrations_section": {
-            "name": "Integration Status",
+            "name": "Integrations Running",
             "description": "The following integrations are currently active."
           }
         },
