@@ -130,21 +130,6 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
                     }
                 )
             ),
-            vol.Required("integrations_section"): section(
-                vol.Schema(
-                    {
-                        vol.Optional(
-                            "integration_list",
-                            default=active_components_text,
-                        ): TextSelector(
-                            TextSelectorConfig(
-                                multiple=False,
-                                multiline=True,
-                            )
-                        ),
-                    }
-                )
-            ),
         }
 
         return self.async_show_form(
