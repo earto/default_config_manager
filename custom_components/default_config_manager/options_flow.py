@@ -131,7 +131,7 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
                 )
             ),
             vol.Required("integrations_section"): section(
-                vol.Schema(dict())
+                vol.Schema({})
             ),
         }
 
