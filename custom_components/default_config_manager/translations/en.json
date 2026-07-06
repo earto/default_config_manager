@@ -35,11 +35,11 @@
         "sections": {
           "mode_section": {
             "name": "Overview",
-            "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}"
+            "description": "Default Config Version: {default_config_version}"
           },
           "integrations_section": {
             "name": "Integrations Running",
-            "description": "The following integrations are currently active."
+            "description": "{active_components_text}"
           }
         },
         "data": {
