@@ -138,12 +138,6 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
                     multiline=True,
                 )
             ),
-            vol.Optional(
-                "integration_list3",
-                default=active_components_text,
-            ): TextSelector(
-                TextSelectorConfig(multiline=True)
-            ),
         }
 
         return self.async_show_form(
