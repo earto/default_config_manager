@@ -129,6 +129,15 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
                     multiple=True
                 )
             ),
+            vol.Optional(
+                "integration_list",
+                default=active_components_text,
+            ): TextSelector(
+                TextSelectorConfig(
+                    multiple=False,
+                    multiline=True,
+                )
+            ),
         }
 
         return self.async_show_form(
