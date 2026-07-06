@@ -9,7 +9,7 @@
         "title": "Default Config Manager",
         "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}",
         "data": {
-          "advanced_mode": "Enable advanced mode"
+          "mode": "Operating Mode"
         }
       }
     },
@@ -23,18 +23,22 @@
       "init_yaml": {
         "title": "Default Config Manager",
         "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}",
+        "data": {
+          "mode_dropdown": "Operating Mode"
+        },
         "data_description": {
-          "mode": "NOTE: Default Config Manager is ready to manage your default_config. Remove default_config from your configuration file and restart Home Assistant to enable management."
+          "mode_dropdown": "Default Config Manager is ready. Remove default_config from your configuration.yaml and restart Home Assistant to enable management."
         }
       },
       "init_managed": {
         "title": "Default Config Manager",
         "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}",
         "data": {
-          "advanced_mode": "Enable advanced mode"
+          "mode_dropdown": "Operating Mode",
+          "integration_list": "Active Default Integrations"
         },
         "data_description": {
-          "mode": "Managed Integrations: {active_components}"
+          "mode_dropdown": "Default Config Manager is managing default integrations."
         }
       }
     }
