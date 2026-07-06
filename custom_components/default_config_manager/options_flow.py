@@ -107,7 +107,8 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         default_config_version = await get_default_config_version(hass)
         static_integrations = await get_static_integrations(hass)
         
-        active_components_text = "\n".join(static_integrations)
+        # active_components_text = "\n".join(static_integrations)
+        active_components_text = ", ".join(static_integrations)
 
         schema_dict = {
             vol.Required("mode_section"): section(
