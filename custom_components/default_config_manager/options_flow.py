@@ -7,6 +7,7 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
+from homeassistant.data_entry_flow import section
 from homeassistant.helpers.selector import (
     SelectOptionDict,
     SelectSelector,
@@ -109,25 +110,45 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         active_components_text = "\n".join(static_integrations)
 
         schema_dict = {
-            vol.Required(
-                "mode_dropdown",
-                default=str(current_mode_code),
-            ): SelectSelector(
-                SelectSelectorConfig(
-                    options=[
-                        SelectOptionDict(value=str(MODE_2), label=MODE_DISPLAY[MODE_2]),
-                        SelectOptionDict(value=str(MODE_3), label=MODE_DISPLAY[MODE_3]),
-                    ],
-                    mode=SelectSelectorMode.DROPDOWN,
+            vol.Required("mode_section"): section(
+                vol.Schema(
+                    {
+                        vol.Required(
+                            "mode_dropdown",
+                            default=str(current_mode_code),
+                        ): SelectSelector(
+                            SelectSelectorConfig(
+                                options=[
+                                    SelectOptionDict(value=str(MODE_2), label=MODE_DISPLAY[MODE_2]),
+                                    SelectOptionDict(value=str(MODE_3), label=MODE_DISPLAY[MODE_3]),
+                                ],
+                                mode=SelectSelectorMode.DROPDOWN,
+                            )
+                        ),
+                    }
                 )
             ),
-            vol.Optional(
-                "integration_list",
-                default=active_components_text,
-            ): TextSelector(
-                TextSelectorConfig(
-                    multiple=False,
-                    multiline=True,
+            vol.Required("integrations_section"): section(
+                vol.Schema(
+                    {
+                        vol.Optional(
+                            "integration_list",
+                            default=active_components_text,
+                        ): TextSelector(
+                            TextSelectorConfig(
+                                multiple=True
+                            )
+                        ),
+                        vol.Optional(
+                            "integration_list2",
+                            default=active_components_text,
+                        ): TextSelector(
+                            TextSelectorConfig(
+                                multiple=False,
+                                multiline=True,
+                            )
+                        ),
+                    }
                 )
             ),
         }
