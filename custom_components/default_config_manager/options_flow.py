@@ -7,7 +7,14 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.helpers import selector
+from homeassistant.helpers.selector import (
+    SelectOptionDict,
+    SelectSelector,
+    SelectSelectorConfig,
+    SelectSelectorMode,
+    TextSelector,
+    TextSelectorConfig,
+)
 
 from .const import (
     DOMAIN,
@@ -52,12 +59,19 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         hass = self.hass
         default_config_version = await get_default_config_version(hass)
 
-        # Lock menu to Mode 1 only
+        # SelectSelector locked to Mode 1
         schema_dict = {
             vol.Required(
                 "mode_dropdown",
                 default=MODE_1,
-            ): vol.In({MODE_1: MODE_DISPLAY[MODE_1]}),
+            ): SelectSelector(
+                SelectSelectorConfig(
+                    options=[
+                        SelectOptionDict(value=MODE_1, label=MODE_DISPLAY[MODE_1]),
+                    ],
+                    mode=SelectSelectorMode.DROPDOWN,
+                )
+            ),
         }
 
         return self.async_show_form(
@@ -74,11 +88,11 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         _LOGGER.debug("options_flow async_step_init_managed called, user_input=%s", user_input)
 
         if user_input is not None:
-            # translate to backend boolean
+            # Convert dropdown string back to backend boolean
             selected_mode = user_input.get("mode_dropdown")
             is_advanced = (selected_mode == MODE_3)
             
-            # Only save existing boolean. The multiline text box is ignored.
+            # Save only the boolean. The text box is safely ignored.
             save_data = {CONF_ADVANCED_MODE: is_advanced}
             
             _LOGGER.debug("Saving options for init_managed with data=%s", save_data)
@@ -86,30 +100,34 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
 
         hass = self.hass
 
-        # Read your existing boolean to set the correct dropdown default visually
+        # Read existing boolean to set visual default
         advanced_mode = self._config_entry.options.get(CONF_ADVANCED_MODE, False)
         current_mode_code = MODE_3 if advanced_mode else MODE_2
         
         default_config_version = await get_default_config_version(hass)
         static_integrations = await get_static_integrations(hass)
         
-        # UI CHANGE: Format components with newlines for the multiline text box
         active_components_text = "\n".join(static_integrations)
 
-        # UI CHANGE: Implement conditional dropdown and the multiline text selector
+        # SelectSelector for Mode 2/3 and TextSelector for components
         schema_dict = {
             vol.Required(
                 "mode_dropdown",
                 default=current_mode_code,
-            ): vol.In({
-                MODE_2: MODE_DISPLAY[MODE_2],
-                MODE_3: MODE_DISPLAY[MODE_3],
-            }),
+            ): SelectSelector(
+                SelectSelectorConfig(
+                    options=[
+                        SelectOptionDict(value=MODE_2, label=MODE_DISPLAY[MODE_2]),
+                        SelectOptionDict(value=MODE_3, label=MODE_DISPLAY[MODE_3]),
+                    ],
+                    mode=SelectSelectorMode.DROPDOWN,
+                )
+            ),
             vol.Optional(
                 "integration_list",
                 default=active_components_text,
-            ): selector.TextSelector(
-                selector.TextSelectorConfig(multiline=True)
+            ): TextSelector(
+                TextSelectorConfig(multiline=True)
             ),
         }
 
