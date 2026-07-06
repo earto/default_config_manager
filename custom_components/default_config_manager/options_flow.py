@@ -91,7 +91,7 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
 
         if user_input is not None:
             # Cast the string input back to int before comparing to int
-            selected_mode = user_input.get("mode_dropdown")
+            selected_mode = user_input.get("mode_section", {}).get("mode_dropdown")
             is_advanced = (int(selected_mode) == MODE_3)
             
             save_data = {CONF_ADVANCED_MODE: is_advanced}
