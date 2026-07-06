@@ -59,11 +59,11 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         hass = self.hass
         default_config_version = await get_default_config_version(hass)
 
-        # SelectSelector locked to Mode 1
+        # Ensure default and value are cast to strings
         schema_dict = {
             vol.Required(
                 "mode_dropdown",
-                default=MODE_1,
+                default=str(MODE_1),
             ): SelectSelector(
                 SelectSelectorConfig(
                     options=[
@@ -82,17 +82,15 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             },
         )
 
-
     async def async_step_init_managed(self, user_input: dict[str, Any] | None = None):
         """Handle options step for Modes 2 & 3 (Managed/Advanced modes)."""
         _LOGGER.debug("options_flow async_step_init_managed called, user_input=%s", user_input)
 
         if user_input is not None:
-            # Convert dropdown string back to backend boolean
+            # Cast the string input back to int before comparing to int
             selected_mode = user_input.get("mode_dropdown")
-            is_advanced = (selected_mode == MODE_3)
+            is_advanced = (int(selected_mode) == MODE_3)
             
-            # Save only the boolean. The text box is safely ignored.
             save_data = {CONF_ADVANCED_MODE: is_advanced}
             
             _LOGGER.debug("Saving options for init_managed with data=%s", save_data)
@@ -109,11 +107,10 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         
         active_components_text = "\n".join(static_integrations)
 
-        # SelectSelector for Mode 2/3 and TextSelector for components
         schema_dict = {
             vol.Required(
                 "mode_dropdown",
-                default=current_mode_code,
+                default=str(current_mode_code),
             ): SelectSelector(
                 SelectSelectorConfig(
                     options=[
