@@ -122,18 +122,15 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
                 )
             ),
             vol.Optional(
-                "integration_list_display",
-                default=active_components_text,
-            ): SelectSelector(
-                SelectSelectorConfig(
-                    options=[
-                        SelectOptionDict(
-                            value=active_components_text, 
-                            label=active_components_text.replace("\n", ", ")
-                        )
-                    ],
-                    mode=SelectSelectorMode.LIST,
-                )
+                "ignored_field", # This won't actually show up if we handle the label right
+                default="",
+            ): vol.All(
+                vol.Coerce(str),
+                vol.Schema(
+                    {
+                        vol.Optional("Active Integrations"): str(active_components_text),
+                    }
+                ),
             ),
             vol.Optional(
                 "integration_list",
