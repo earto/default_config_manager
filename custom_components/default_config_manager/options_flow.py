@@ -160,5 +160,6 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             data_schema=vol.Schema(schema_dict),
             description_placeholders={
                 "default_config_version": default_config_version,
+                "active_components_text": active_components_text,
             },
         )
