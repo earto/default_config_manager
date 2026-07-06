@@ -122,6 +122,20 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
                 )
             ),
             vol.Optional(
+                "integration_list_display",
+                default=active_components_text,
+            ): SelectSelector(
+                SelectSelectorConfig(
+                    options=[
+                        SelectOptionDict(
+                            value=active_components_text, 
+                            label=active_components_text.replace("\n", ", ")
+                        )
+                    ],
+                    mode=SelectSelectorMode.LIST,
+                )
+            ),
+            vol.Optional(
                 "integration_list",
                 default=active_components_text,
             ): TextSelector(
