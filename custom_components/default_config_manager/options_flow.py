@@ -126,14 +126,6 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
                 default=active_components_text,
             ): TextSelector(
                 TextSelectorConfig(
-                    multiple=True
-                )
-            ),
-            vol.Optional(
-                "integration_list2",
-                default=active_components_text,
-            ): TextSelector(
-                TextSelectorConfig(
                     multiple=False,
                     multiline=True,
                 )
