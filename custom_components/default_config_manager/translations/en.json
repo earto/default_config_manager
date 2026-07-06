@@ -34,7 +34,7 @@
         "title": "Default Config Manager",
         "sections": {
           "mode_section": {
-            "name": "Overview",
+            "name": "Settings",
             "description": "Default Config Version: {default_config_version}"
           },
           "integrations_section": {
