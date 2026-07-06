@@ -126,7 +126,7 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
                 default=active_components_text,
             ): TextSelector(
                 TextSelectorConfig(
-                    type=TextSelectorType.TEXT,
+                    multiple=True
                 )
             ),
         }
