@@ -67,7 +67,7 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             ): SelectSelector(
                 SelectSelectorConfig(
                     options=[
-                        SelectOptionDict(value=MODE_1, label=MODE_DISPLAY[MODE_1]),
+                        SelectOptionDict(value=str(MODE_1), label=MODE_DISPLAY[MODE_1]),
                     ],
                     mode=SelectSelectorMode.DROPDOWN,
                 )
