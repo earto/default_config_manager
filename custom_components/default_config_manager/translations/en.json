@@ -38,7 +38,7 @@
             "description": "Default Config Version: {default_config_version}"
           },
           "integrations_section": {
-            "name": "{count_text} Running",
+            "name": "Integrations Running ({count_text})",
             "description": "{components_list}"
           }
         },
