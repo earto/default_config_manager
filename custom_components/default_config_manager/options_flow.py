@@ -13,9 +13,6 @@ from homeassistant.helpers.selector import (
     SelectSelector,
     SelectSelectorConfig,
     SelectSelectorMode,
-    TextSelector,
-    TextSelectorConfig,
-    TextSelectorType,
 )
 
 from .const import (
@@ -61,7 +58,6 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         hass = self.hass
         default_config_version = await get_default_config_version(hass)
 
-        # Ensure default and value are cast to strings
         schema_dict = {
             vol.Required(
                 "mode_dropdown",
@@ -81,7 +77,6 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             data_schema=vol.Schema(schema_dict),
             description_placeholders={
                 "default_config_version": default_config_version,
-                "active_components_text": active_components_text,
             },
         )
 
@@ -94,7 +89,12 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             selected_mode = user_input.get("mode_section", {}).get("mode_dropdown")
             is_advanced = (int(selected_mode) == MODE_3)
             
-            save_data = {CONF_ADVANCED_MODE: is_advanced}
+            # INTERCEPT: Route to disclaimer if Advanced Mode is selected
+            if is_advanced:
+                _LOGGER.debug("Advanced mode selected. Routing to disclaimer step.")
+                return await self.async_step_disclaimer()
+            
+            save_data = {CONF_ADVANCED_MODE: False}
             
             _LOGGER.debug("Saving options for init_managed with data=%s", save_data)
             return self.async_create_entry(title="Options", data=save_data)
@@ -108,8 +108,9 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         default_config_version = await get_default_config_version(hass)
         static_integrations = await get_static_integrations(hass)
         
-        # active_components_text = "\n".join(static_integrations)
-        active_components_text = ", ".join(static_integrations)
+        # Filter to only show integrations currently loaded in Home Assistant
+        running_integrations = [comp for comp in static_integrations if comp in hass.config.components]
+        active_components_text = ", ".join(running_integrations)
 
         schema_dict = {
             vol.Required("mode_section"): section(
@@ -142,4 +143,26 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
                 "default_config_version": default_config_version,
                 "active_components_text": active_components_text,
             },
+        )
+
+    async def async_step_disclaimer(self, user_input: dict[str, Any] | None = None):
+        """Handle the mandatory disclaimer step for Advanced Mode."""
+        errors: dict[str, str] = {}
+
+        if user_input is not None:
+            if user_input.get("acknowledge"):
+                _LOGGER.debug("Disclaimer acknowledged. Saving Advanced Mode options.")
+                return self.async_create_entry(title="Options", data={CONF_ADVANCED_MODE: True})
+            
+            # Form returns with an error if the box wasn't checked
+            errors["base"] = "must_acknowledge"
+
+        return self.async_show_form(
+            step_id="disclaimer",
+            data_schema=vol.Schema(
+                {
+                    vol.Required("acknowledge", default=False): bool,
+                }
+            ),
+            errors=errors,
         )
