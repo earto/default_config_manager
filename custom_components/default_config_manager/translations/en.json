@@ -55,6 +55,10 @@
         "data": {
           "acknowledge": "I understand the risks and wish to enable Advanced Mode."
         }
+      },
+      "revert_basic": {
+        "title": "Revert to Managed Mode",
+        "description": "You are switching back to Managed Mode. Any default integrations you previously disabled will be automatically re-enabled.\n\nClick Submit to confirm and save your changes."
       }
     },
     "error": {
