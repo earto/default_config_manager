@@ -43,13 +43,22 @@
           }
         },
         "data": {
-          "mode_dropdown": "Operating Mode",
-          "integration_list": "Active Default Integrations"
+          "mode_dropdown": "Operating Mode"
         },
         "data_description": {
           "mode_dropdown": "Default Config Manager is managing default integrations."
         }
+      },
+      "disclaimer": {
+        "title": "Advanced Mode Warning",
+        "description": "⚠️ **WARNING:** Advanced mode allows you to disable core components. Misconfiguration can break your dashboards or cause system instability.\n\nPlease confirm you want to proceed.",
+        "data": {
+          "acknowledge": "I understand the risks and wish to enable Advanced Mode."
+        }
       }
+    },
+    "error": {
+      "must_acknowledge": "You must check the box to confirm you understand the risks before saving."
     }
   },
   "issues": {
