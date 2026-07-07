@@ -38,8 +38,8 @@
             "description": "Default Config Version: {default_config_version}"
           },
           "integrations_section": {
-            "name": "Status",
-            "description": "{count_text} integrations running.\n\n{components_list}"
+            "name": "{count_text} Running",
+            "description": "{components_list}"
           }
         },
         "data": {
