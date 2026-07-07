@@ -7,6 +7,16 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
+from homeassistant.data_entry_flow import section
+from homeassistant.helpers.selector import (
+    SelectOptionDict,
+    SelectSelector,
+    SelectSelectorConfig,
+    SelectSelectorMode,
+    TextSelector,
+    TextSelectorConfig,
+    TextSelectorType,
+)
 
 from .const import (
     DOMAIN,
@@ -45,18 +55,25 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         _LOGGER.debug("options_flow async_step_init_yaml called, user_input=%s", user_input)
 
         if user_input is not None:
-            _LOGGER.debug("Saving options for init_yaml with user_input=%s", user_input)
-            return self.async_create_entry(title="Options", data=user_input)
+            _LOGGER.debug("Closing YAML options flow.")
+            return self.async_create_entry(title="Options", data={})
 
         hass = self.hass
-        mode_display = MODE_DISPLAY[MODE_1]
         default_config_version = await get_default_config_version(hass)
 
+        # Ensure default and value are cast to strings
         schema_dict = {
-            vol.Optional(
-                "mode",
-                description={"suggested_value": mode_display},
-            ): str,
+            vol.Required(
+                "mode_dropdown",
+                default=str(MODE_1),
+            ): SelectSelector(
+                SelectSelectorConfig(
+                    options=[
+                        SelectOptionDict(value=str(MODE_1), label=MODE_DISPLAY[MODE_1]),
+                    ],
+                    mode=SelectSelectorMode.DROPDOWN,
+                )
+            ),
         }
 
         return self.async_show_form(
@@ -64,7 +81,7 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             data_schema=vol.Schema(schema_dict),
             description_placeholders={
                 "default_config_version": default_config_version,
-                "status": mode_display,
+                "active_components_text": active_components_text,
             },
         )
 
@@ -73,30 +90,49 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         _LOGGER.debug("options_flow async_step_init_managed called, user_input=%s", user_input)
 
         if user_input is not None:
-            _LOGGER.debug("Saving options for init_managed with user_input=%s", user_input)
-            return self.async_create_entry(title="Options", data=user_input)
+            # Cast the string input back to int before comparing to int
+            selected_mode = user_input.get("mode_section", {}).get("mode_dropdown")
+            is_advanced = (int(selected_mode) == MODE_3)
+            
+            save_data = {CONF_ADVANCED_MODE: is_advanced}
+            
+            _LOGGER.debug("Saving options for init_managed with data=%s", save_data)
+            return self.async_create_entry(title="Options", data=save_data)
 
         hass = self.hass
 
+        # Read existing boolean to set visual default
         advanced_mode = self._config_entry.options.get(CONF_ADVANCED_MODE, False)
-        mode_code = MODE_3 if advanced_mode else MODE_2
-        mode_display = MODE_DISPLAY[mode_code]
+        current_mode_code = MODE_3 if advanced_mode else MODE_2
         
         default_config_version = await get_default_config_version(hass)
         static_integrations = await get_static_integrations(hass)
         
-        # Generate the continuous CSV list string
-        active_components_csv = ", ".join(static_integrations)
+        # active_components_text = "\n".join(static_integrations)
+        active_components_text = ", ".join(static_integrations)
 
         schema_dict = {
-            vol.Optional(
-                "mode",
-                description={"suggested_value": mode_display},
-            ): str,
-            vol.Optional(
-                CONF_ADVANCED_MODE,
-                default=advanced_mode,
-            ): bool,
+            vol.Required("mode_section"): section(
+                vol.Schema(
+                    {
+                        vol.Required(
+                            "mode_dropdown",
+                            default=str(current_mode_code),
+                        ): SelectSelector(
+                            SelectSelectorConfig(
+                                options=[
+                                    SelectOptionDict(value=str(MODE_2), label=MODE_DISPLAY[MODE_2]),
+                                    SelectOptionDict(value=str(MODE_3), label=MODE_DISPLAY[MODE_3]),
+                                ],
+                                mode=SelectSelectorMode.DROPDOWN,
+                            )
+                        ),
+                    }
+                )
+            ),
+            vol.Required("integrations_section"): section(
+                vol.Schema({})
+            ),
         }
 
         return self.async_show_form(
@@ -104,7 +140,6 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             data_schema=vol.Schema(schema_dict),
             description_placeholders={
                 "default_config_version": default_config_version,
-                "status": mode_display,
-                "active_components": active_components_csv,
+                "active_components_text": active_components_text,
             },
         )
