@@ -89,12 +89,15 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             selected_mode = user_input.get("mode_section", {}).get("mode_dropdown")
             is_advanced = (int(selected_mode) == MODE_3)
             
-            # INTERCEPT: Route to disclaimer if Advanced Mode is selected
-            if is_advanced:
-                _LOGGER.debug("Advanced mode selected. Routing to disclaimer step.")
+            # Check the previously saved state to verify if they are already in Advanced mode
+            was_advanced = self._config_entry.options.get(CONF_ADVANCED_MODE, False)
+            
+            # INTERCEPT: Route to disclaimer ONLY if they are actively switching TO Advanced Mode
+            if is_advanced and not was_advanced:
+                _LOGGER.debug("Switching to Advanced mode. Routing to disclaimer step.")
                 return await self.async_step_disclaimer()
             
-            save_data = {CONF_ADVANCED_MODE: False}
+            save_data = {CONF_ADVANCED_MODE: is_advanced}
             
             _LOGGER.debug("Saving options for init_managed with data=%s", save_data)
             return self.async_create_entry(title="Options", data=save_data)
