@@ -118,6 +118,7 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         # Calculate totals and format the string with markdown
         running_count = len(running_integrations)
         total_count = len(static_integrations)
+        count_text = f"{running_count} / {total_count} active"
         components_list = ", ".join(running_integrations)
         
         active_components_text = f"**{running_count}** / {total_count} active\n\n{components_list}"
@@ -151,7 +152,8 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             data_schema=vol.Schema(schema_dict),
             description_placeholders={
                 "default_config_version": default_config_version,
-                "active_components_text": active_components_text,
+                "count_text": count_text,
+                "components_list": components_list,
             },
         )
 
