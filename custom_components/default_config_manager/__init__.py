@@ -116,7 +116,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     # Store current state so our efficient listeners can check it instantly
     for entry in hass.config_entries.async_entries(DOMAIN):
          hass.data[DOMAIN][entry.entry_id] = mode_code
-        _LOGGER.debug("DCM State: Stored mode %s for entry %s", mode_code, entry.entry_id)
+         _LOGGER.debug("DCM State: Stored mode %s for entry %s", mode_code, entry.entry_id)
 
     if mode_code == MODE_1:
         return True
