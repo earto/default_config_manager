@@ -37,8 +37,8 @@ def _delete_restart_issue(hass: HomeAssistant) -> None:
     """Delete the restart required issue."""
     ir.async_delete_issue(hass, DOMAIN, "restart_required")
 
-async def _async_sync_manifest(hass: HomeAssistant, entry: ConfigEntry, mode_code: int) -> None:
-    """Silent-healer: sync dependencies to manifest.json."""
+async def _async_sync_manifest(hass: HomeAssistant, entry: ConfigEntry, mode_code: int) -> bool:
+    """Silent-healer: sync dependencies to manifest.json. Returns True if changed."""
     try:
         core_default_config = await async_get_integration(hass, "default_config")
         factory_deps = core_default_config.dependencies
@@ -54,20 +54,25 @@ async def _async_sync_manifest(hass: HomeAssistant, entry: ConfigEntry, mode_cod
         target = [d for d in factory_deps if d not in disabled]
         path = hass.config.path("custom_components", "default_config_manager", "manifest.json")
         
-        def write():
+        def write() -> bool:
             with open(path, "r", encoding="utf-8") as f:
                 data = json.load(f)
-            if set(data.get("dependencies", [])) != set(target):
-                _LOGGER.info("DCM Silent Sync: %s", target)
+            
+            current_deps = data.get("dependencies", [])
+            if set(current_deps) != set(target):
+                _LOGGER.info("DCM Manifest Sync: Updating dependencies to: %s", target)
                 data["dependencies"] = target
                 with open(path, "w", encoding="utf-8") as f:
                     json.dump(data, f, indent=2)
+                return True # We made a change
+            return False # No change needed
         
-        await hass.async_add_executor_job(write)
+        return await hass.async_add_executor_job(write)
     except Exception as e:
         _LOGGER.error("Manifest sync failed: %s", e)
+        return False
 
-# --- Setup Logic (Preserved) ---
+# --- Setup Logic ---
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Default Config Manager integration."""
@@ -116,10 +121,29 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(update_listener))
     
-    # Silent-healer registration
-    mode = hass.data[DOMAIN].get("mode_code", MODE_2)
-    async def sync(_): await _async_sync_manifest(hass, entry, mode)
-    hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, sync)
+    # 1. Silent-healer boot-time registration (Never triggers restart nag)
+    async def sync_on_boot(_): 
+        await _async_sync_manifest(hass, entry, hass.data[DOMAIN].get("mode_code", MODE_2))
+    hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, sync_on_boot)
+    
+    # 2. Manual toggle listener (Triggers restart nag ONLY if a DCM device was toggled)
+    async def sync_on_registry_change(event):
+        # Filter for actual 'disabled_by' toggle events
+        if event.data.get("action") == "update" and "disabled_by" in event.data.get("changes", {}):
+            device_id = event.data.get("device_id")
+            device_registry = dr.async_get(hass)
+            device = device_registry.async_get(device_id)
+            
+            # If the toggled device belongs to DCM and we are in Mode 3
+            if device and entry.entry_id in device.config_entries:
+                current_mode = hass.data[DOMAIN].get("mode_code", MODE_2)
+                if current_mode == MODE_3:
+                    changed = await _async_sync_manifest(hass, entry, current_mode)
+                    if changed:
+                        _LOGGER.debug("DCM device toggled. Creating restart issue.")
+                        _create_restart_issue(hass)
+
+    entry.async_on_unload(hass.bus.async_listen(dr.EVENT_DEVICE_REGISTRY_UPDATED, sync_on_registry_change))
     
     return True
 
@@ -129,9 +153,23 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Handle options update."""
-    _LOGGER.debug("Options updated. Creating restart issue.")
-    _create_restart_issue(hass)
-    # Sync manifest before reload
-    mode = MODE_3 if entry.options.get(CONF_ADVANCED_MODE, False) else MODE_2
-    await _async_sync_manifest(hass, entry, mode)
+    _LOGGER.debug("Options updated. Processing state transitions.")
+    
+    old_advanced = hass.data[DOMAIN].get("mode_code") == MODE_3
+    new_advanced = entry.options.get(CONF_ADVANCED_MODE, False)
+    
+    # Mode 3 -> Mode 2 cleanup
+    if old_advanced and not new_advanced:
+        _LOGGER.debug("Transitioning to Basic Mode: Clearing disabled proxy states.")
+        await _async_enable_all_proxy_devices(hass, entry)
+        
+    mode = MODE_3 if new_advanced else MODE_2
+    hass.data[DOMAIN]["mode_code"] = mode 
+    
+    # Only nag if the manifest actually changed
+    changed = await _async_sync_manifest(hass, entry, mode)
+    if changed:
+        _LOGGER.debug("Manifest changed during options update. Creating restart issue.")
+        _create_restart_issue(hass)
+        
     await hass.config_entries.async_reload(entry.entry_id)
