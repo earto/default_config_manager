@@ -116,6 +116,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     # Store current state so our efficient listeners can check it instantly
     for entry in hass.config_entries.async_entries(DOMAIN):
          hass.data[DOMAIN][entry.entry_id] = mode_code
+        _LOGGER.debug("DCM State: Stored mode %s for entry %s", mode_code, entry.entry_id)
 
     if mode_code == MODE_1:
         return True
@@ -173,6 +174,7 @@ async def update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Handle options update."""
     old_mode = hass.data[DOMAIN].get(entry.entry_id, MODE_2)
     new_mode = MODE_3 if entry.options.get(CONF_ADVANCED_MODE, False) else MODE_2
+    _LOGGER.debug("DCM Transition: Entry %s | Old: %s | New: %s", entry.entry_id, old_mode, new_mode)
     
     # 1. Flip state immediately to silence the registry listener
     hass.data[DOMAIN][entry.entry_id] = new_mode 
