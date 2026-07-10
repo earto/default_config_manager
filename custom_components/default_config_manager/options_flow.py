@@ -13,9 +13,6 @@ from homeassistant.helpers.selector import (
     SelectSelector,
     SelectSelectorConfig,
     SelectSelectorMode,
-    TextSelector,
-    TextSelectorConfig,
-    TextSelectorType,
 )
 
 from .const import (
@@ -61,7 +58,6 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         hass = self.hass
         default_config_version = await get_default_config_version(hass)
 
-        # Ensure default and value are cast to strings
         schema_dict = {
             vol.Required(
                 "mode_dropdown",
@@ -81,7 +77,6 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             data_schema=vol.Schema(schema_dict),
             description_placeholders={
                 "default_config_version": default_config_version,
-                "active_components_text": active_components_text,
             },
         )
 
@@ -90,9 +85,20 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         _LOGGER.debug("options_flow async_step_init_managed called, user_input=%s", user_input)
 
         if user_input is not None:
-            # Cast the string input back to int before comparing to int
             selected_mode = user_input.get("mode_section", {}).get("mode_dropdown")
             is_advanced = (int(selected_mode) == MODE_3)
+            
+            was_advanced = self._config_entry.options.get(CONF_ADVANCED_MODE, False)
+            
+            # INTERCEPT 1: Route to disclaimer if switching TO Advanced Mode
+            if is_advanced and not was_advanced:
+                _LOGGER.debug("Switching to Advanced mode. Routing to disclaimer step.")
+                return await self.async_step_disclaimer()
+                
+            # INTERCEPT 2: Route to info message if switching FROM Advanced Mode back to Managed
+            if not is_advanced and was_advanced:
+                _LOGGER.debug("Switching to Managed mode. Routing to info step.")
+                return await self.async_step_revert_basic()
             
             save_data = {CONF_ADVANCED_MODE: is_advanced}
             
@@ -101,15 +107,21 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
 
         hass = self.hass
 
-        # Read existing boolean to set visual default
         advanced_mode = self._config_entry.options.get(CONF_ADVANCED_MODE, False)
         current_mode_code = MODE_3 if advanced_mode else MODE_2
         
         default_config_version = await get_default_config_version(hass)
         static_integrations = await get_static_integrations(hass)
         
-        # active_components_text = "\n".join(static_integrations)
-        active_components_text = ", ".join(static_integrations)
+        running_integrations = [comp for comp in static_integrations if comp in hass.config.components]
+        
+        # Calculate totals and format the string with markdown
+        running_count = len(running_integrations)
+        total_count = len(static_integrations)
+        count_text = f"{running_count}/{total_count}"
+        components_list = ", ".join(running_integrations)
+        
+        active_components_text = f"**{running_count}** / {total_count} active\n\n{components_list}"
 
         schema_dict = {
             vol.Required("mode_section"): section(
@@ -140,6 +152,40 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             data_schema=vol.Schema(schema_dict),
             description_placeholders={
                 "default_config_version": default_config_version,
-                "active_components_text": active_components_text,
+                "count_text": count_text,
+                "components_list": components_list,
             },
+        )
+
+    async def async_step_disclaimer(self, user_input: dict[str, Any] | None = None):
+        """Handle the mandatory disclaimer step for Advanced Mode."""
+        errors: dict[str, str] = {}
+
+        if user_input is not None:
+            if user_input.get("acknowledge"):
+                _LOGGER.debug("Disclaimer acknowledged. Saving Advanced Mode options.")
+                return self.async_create_entry(title="Options", data={CONF_ADVANCED_MODE: True})
+            
+            errors["base"] = "must_acknowledge"
+
+        return self.async_show_form(
+            step_id="disclaimer",
+            data_schema=vol.Schema(
+                {
+                    vol.Required("acknowledge", default=False): bool,
+                }
+            ),
+            errors=errors,
+        )
+
+    async def async_step_revert_basic(self, user_input: dict[str, Any] | None = None):
+        """Handle the informational step when reverting to Managed Mode."""
+        if user_input is not None:
+            _LOGGER.debug("Revert to basic acknowledged. Saving Managed Mode options.")
+            return self.async_create_entry(title="Options", data={CONF_ADVANCED_MODE: False})
+
+        # Empty schema renders as a simple message with a Submit button
+        return self.async_show_form(
+            step_id="revert_basic",
+            data_schema=vol.Schema({}),
         )

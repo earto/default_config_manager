@@ -38,18 +38,31 @@
             "description": "Default Config Version: {default_config_version}"
           },
           "integrations_section": {
-            "name": "Integrations Running",
-            "description": "{active_components_text}"
+            "name": "Integrations Running ({count_text})",
+            "description": "{components_list}"
           }
         },
         "data": {
-          "mode_dropdown": "Operating Mode",
-          "integration_list": "Active Default Integrations"
+          "mode_dropdown": "Operating Mode"
         },
         "data_description": {
           "mode_dropdown": "Default Config Manager is managing default integrations."
         }
+      },
+      "disclaimer": {
+        "title": "Advanced Mode Warning",
+        "description": "⚠️ **WARNING:** Advanced mode allows you to disable core components. Misconfiguration can break your dashboards or cause system instability.\n\nPlease confirm you want to proceed.",
+        "data": {
+          "acknowledge": "I understand the risks and wish to enable Advanced Mode."
+        }
+      },
+      "revert_basic": {
+        "title": "Revert to Managed Mode",
+        "description": "You are switching back to Managed Mode. Any default integrations you previously disabled will be automatically re-enabled.\n\nClick Submit to confirm and save your changes."
       }
+    },
+    "error": {
+      "must_acknowledge": "You must check the box to confirm you understand the risks before saving."
     }
   },
   "issues": {
