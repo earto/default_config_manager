@@ -10,7 +10,7 @@ import homeassistant.components.default_config as ha_default_config
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EVENT_HOMEASSISTANT_STARTED, Platform
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import config_validation as cv, device_registry as dr, issue_registry as ir
+from homeassistant.helpers import config_validation as cv, device_registry as dr, entity_registry as er, issue_registry as ir
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.loader import async_get_integration
 from homeassistant.setup import async_setup_component
@@ -77,12 +77,21 @@ async def _async_sync_manifest(hass: HomeAssistant, entry: ConfigEntry, mode_cod
 
 
 async def _async_purge_proxy_devices(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Robust teardown: Purge all proxy devices to ensure a clean state."""
-    device_registry = dr.async_get(hass)
-    devices = dr.async_entries_for_config_entry(device_registry, entry.entry_id)
-    for device in devices:
-        _LOGGER.debug("Purging proxy device: %s", device.name)
-        device_registry.async_remove_device(device.id)
+    """Robust teardown: Purge all proxy entities and devices to ensure a clean state."""
+    ent_reg = er.async_get(hass)
+    dev_reg = dr.async_get(hass)
+
+    # Hard-delete all DCM entities first (ensures disabled list is wiped)
+    entities = er.async_entries_for_config_entry(ent_reg, entry.entry_id)
+    for entity_entry in entities:
+        _LOGGER.debug("Purging proxy entity: %s", entity_entry.entity_id)
+        ent_reg.async_remove(entity_entry.entity_id)
+
+    # Hard-delete all DCM devices
+    devices = dr.async_entries_for_config_entry(dev_reg, entry.entry_id)
+    for device_entry in devices:
+        _LOGGER.debug("Purging proxy device: %s", device_entry.name)
+        dev_reg.async_remove_device(device_entry.id)
 
 
 # --- Setup Logic ---
