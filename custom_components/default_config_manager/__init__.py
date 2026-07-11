@@ -146,6 +146,12 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up from a config entry."""
+    
+    # Clean device/entity registry if not in mode 3
+    if hass.data[DOMAIN].get(entry.entry_id, MODE_2) != MODE_3:
+        await _async_purge_proxy_devices(hass, entry)
+
+    # Forward entry setups
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(update_listener))
     
@@ -154,7 +160,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         await _async_sync_manifest(hass, entry, hass.data[DOMAIN].get(entry.entry_id, MODE_2))
     hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, sync_on_boot)
     
-    # Efficient UI Toggle Listener
+    # UI Toggle Listener
     async def sync_on_registry_change(event):
         if event.data.get("action") == "update" and "disabled_by" in event.data.get("changes", {}):
             
@@ -169,8 +175,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             if device and entry.entry_id in device.config_entries:
                 if await _async_sync_manifest(hass, entry, MODE_3):
                     _create_restart_issue(hass)
+                    
+    entry.async_on_unload(
+        hass.bus.async_listen(dr.EVENT_DEVICE_REGISTRY_UPDATED, sync_on_registry_change)
+    )
 
-    entry.async_on_unload(hass.bus.async_listen(dr.EVENT_DEVICE_REGISTRY_UPDATED, sync_on_registry_change))
     return True
 
 
@@ -185,15 +194,15 @@ async def update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
     new_mode = MODE_3 if entry.options.get(CONF_ADVANCED_MODE, False) else MODE_2
     _LOGGER.debug("DCM Transition: Entry %s | Old: %s | New: %s", entry.entry_id, old_mode, new_mode)
     
-    # 1. Flip state immediately to silence the registry listener
+    # Flip state immediately to silence the registry listener
     hass.data[DOMAIN][entry.entry_id] = new_mode 
     
-    # 2. Robust teardown: Wipe registry state entirely if downgrading
+    # Clean device/entity registry when switching to mode 2
     if old_mode == MODE_3 and new_mode == MODE_2:
         _LOGGER.debug("Downgrading to Basic Mode: Purging proxy devices from registry.")
         await _async_purge_proxy_devices(hass, entry)
         
-    # 3. Check if manifest changed, trigger notification linking to repairs.py
+    # If manifest changed, trigger notification in repairs.py
     if await _async_sync_manifest(hass, entry, new_mode):
         _create_restart_issue(hass)
         
