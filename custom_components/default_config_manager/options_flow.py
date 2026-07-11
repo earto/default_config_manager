@@ -57,6 +57,8 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
 
         hass = self.hass
         default_config_version = await get_default_config_version(hass)
+        static_integrations = await get_static_integrations(hass)
+        total_count = len(static_integrations)
 
         schema_dict = {
             vol.Required(
@@ -77,6 +79,7 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             data_schema=vol.Schema(schema_dict),
             description_placeholders={
                 "default_config_version": default_config_version,
+                "total_integrations": total_count,
             },
         )
 
@@ -90,12 +93,12 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             
             was_advanced = self._config_entry.options.get(CONF_ADVANCED_MODE, False)
             
-            # INTERCEPT 1: Route to disclaimer if switching TO Advanced Mode
+            # Route to disclaimer if switching TO Advanced Mode
             if is_advanced and not was_advanced:
                 _LOGGER.debug("Switching to Advanced mode. Routing to disclaimer step.")
                 return await self.async_step_disclaimer()
                 
-            # INTERCEPT 2: Route to info message if switching FROM Advanced Mode back to Managed
+            # Route to info message if switching FROM Advanced Mode back to Managed
             if not is_advanced and was_advanced:
                 _LOGGER.debug("Switching to Managed mode. Routing to info step.")
                 return await self.async_step_revert_basic()
@@ -152,6 +155,7 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             data_schema=vol.Schema(schema_dict),
             description_placeholders={
                 "default_config_version": default_config_version,
+                "total_integrations": total_count,
                 "count_text": count_text,
                 "components_list": components_list,
             },
