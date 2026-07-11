@@ -32,6 +32,7 @@
       },
       "init_managed": {
         "title": "Default Config Manager",
+        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}\nIncluded Integrations: {total_integrations}",
         "sections": {
           "mode_section": {
             "name": "Settings",
