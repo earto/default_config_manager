@@ -35,7 +35,7 @@
         "sections": {
           "mode_section": {
             "name": "Settings",
-            "description": "Default Config Version: {default_config_version}"
+            "description": "Default Config Version: {default_config_version}<br>Included Integrations: {total_integrations}"
           },
           "integrations_section": {
             "name": "Integrations Running ({count_text})",
