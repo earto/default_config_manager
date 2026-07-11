@@ -77,7 +77,7 @@ async def _async_sync_manifest(hass: HomeAssistant, entry: ConfigEntry, mode_cod
 
 
 async def _async_purge_proxy_devices(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Robust teardown: Purge all proxy entities and devices to ensure a clean state."""
+    """Purge all proxy entities and devices."""
     ent_reg = er.async_get(hass)
     dev_reg = dr.async_get(hass)
 
