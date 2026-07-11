@@ -81,16 +81,18 @@ async def _async_purge_proxy_devices(hass: HomeAssistant, entry: ConfigEntry) ->
     ent_reg = er.async_get(hass)
     dev_reg = dr.async_get(hass)
 
-    # Hard-delete all DCM entities first (ensures disabled list is wiped)
     entities = er.async_entries_for_config_entry(ent_reg, entry.entry_id)
+    devices = dr.async_entries_for_config_entry(dev_reg, entry.entry_id)
+    
+    _LOGGER.debug("Purge initiated: Found %d entities and %d devices for entry %s", 
+                  len(entities), len(devices), entry.entry_id)
+
     for entity_entry in entities:
-        _LOGGER.debug("Purging proxy entity: %s", entity_entry.entity_id)
+        _LOGGER.debug("Purging entity: %s", entity_entry.entity_id)
         ent_reg.async_remove(entity_entry.entity_id)
 
-    # Hard-delete all DCM devices
-    devices = dr.async_entries_for_config_entry(dev_reg, entry.entry_id)
     for device_entry in devices:
-        _LOGGER.debug("Purging proxy device: %s", device_entry.name)
+        _LOGGER.debug("Purging device: %s (ID: %s)", device_entry.name, device_entry.id)
         dev_reg.async_remove_device(device_entry.id)
 
 
@@ -146,12 +148,14 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up from a config entry."""
+    mode = hass.data[DOMAIN].get(entry.entry_id, MODE_2)
     
-    # Clean device/entity registry if not in mode 3
-    if hass.data[DOMAIN].get(entry.entry_id, MODE_2) != MODE_3:
+    if mode != MODE_3:
+        _LOGGER.debug("Setup: Mode %s detected, purging registry.", mode)
         await _async_purge_proxy_devices(hass, entry)
+    else:
+        _LOGGER.debug("Setup: Mode 3 active, skipping registry purge.")
 
-    # Forward entry setups
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(update_listener))
     
