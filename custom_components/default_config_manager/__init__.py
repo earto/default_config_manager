@@ -196,18 +196,18 @@ async def update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Handle options update."""
     old_mode = hass.data[DOMAIN].get(entry.entry_id, MODE_2)
     new_mode = MODE_3 if entry.options.get(CONF_ADVANCED_MODE, False) else MODE_2
-    _LOGGER.debug("DCM Transition: Entry %s | Old: %s | New: %s", entry.entry_id, old_mode, new_mode)
     
-    # Flip state immediately to silence the registry listener
+    _LOGGER.debug("Mode change detected: %s -> %s", old_mode, new_mode)
+    
     hass.data[DOMAIN][entry.entry_id] = new_mode 
     
-    # Clean device/entity registry when switching to mode 2
     if old_mode == MODE_3 and new_mode == MODE_2:
-        _LOGGER.debug("Downgrading to Basic Mode: Purging proxy devices from registry.")
+        _LOGGER.debug("Removing proxy devices from registry")
         await _async_purge_proxy_devices(hass, entry)
         
-    # If manifest changed, trigger notification in repairs.py
     if await _async_sync_manifest(hass, entry, new_mode):
+        _LOGGER.debug("Trigger restart notification")
         _create_restart_issue(hass)
         
     await hass.config_entries.async_reload(entry.entry_id)
+    
