@@ -88,7 +88,8 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         _LOGGER.debug("options_flow async_step_init_managed called, user_input=%s", user_input)
 
         if user_input is not None:
-            selected_mode = user_input.get("mode_section", {}).get("mode_dropdown")
+            # Extract directly from the root since it is no longer in a section
+            selected_mode = user_input.get("mode_dropdown")
             is_advanced = (int(selected_mode) == MODE_3)
             
             was_advanced = self._config_entry.options.get(CONF_ADVANCED_MODE, False)
@@ -127,22 +128,16 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         active_components_text = f"**{running_count}** / {total_count} active\n\n{components_list}"
 
         schema_dict = {
-            vol.Required("mode_section"): section(
-                vol.Schema(
-                    {
-                        vol.Required(
-                            "mode_dropdown",
-                            default=str(current_mode_code),
-                        ): SelectSelector(
-                            SelectSelectorConfig(
-                                options=[
-                                    SelectOptionDict(value=str(MODE_2), label=MODE_DISPLAY[MODE_2]),
-                                    SelectOptionDict(value=str(MODE_3), label=MODE_DISPLAY[MODE_3]),
-                                ],
-                                mode=SelectSelectorMode.DROPDOWN,
-                            )
-                        ),
-                    }
+            vol.Required(
+                "mode_dropdown",
+                default=str(current_mode_code),
+            ): SelectSelector(
+                SelectSelectorConfig(
+                    options=[
+                        SelectOptionDict(value=str(MODE_2), label=MODE_DISPLAY[MODE_2]),
+                        SelectOptionDict(value=str(MODE_3), label=MODE_DISPLAY[MODE_3]),
+                    ],
+                    mode=SelectSelectorMode.DROPDOWN,
                 )
             ),
             vol.Required("integrations_section"): section(
