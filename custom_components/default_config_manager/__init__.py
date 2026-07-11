@@ -52,7 +52,7 @@ async def _async_sync_manifest(hass: HomeAssistant, entry: ConfigEntry, mode_cod
             components = await get_static_integrations(hass)
             dr_inst = dr.async_get(hass)
             for comp in components:
-                dev = dr_inst.async_get_device({(DOMAIN, f"{entry.entry_id}_{comp}")})
+                dev = dr_inst.async_get_device(identifiers={(DOMAIN, f"{entry.entry_id}_{comp}")})
                 if dev and dev.disabled_by:
                     disabled.append(comp)
         
