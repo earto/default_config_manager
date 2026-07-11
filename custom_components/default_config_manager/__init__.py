@@ -87,12 +87,22 @@ async def _async_purge_proxy_devices(hass: HomeAssistant, entry: ConfigEntry) ->
     _LOGGER.debug("Purge initiated: Found %d entities and %d devices for entry %s", 
                   len(entities), len(devices), entry.entry_id)
 
+    # Clear disabled state and remove proxy entities
     for entity_entry in entities:
         _LOGGER.debug("Purging entity: %s", entity_entry.entity_id)
+        # Clear disabled to avoid wrong state on restored orphan
+        if entity_entry.disabled_by:
+            ent_reg.async_update_entity(entity_entry.entity_id, disabled_by=None)
+            
         ent_reg.async_remove(entity_entry.entity_id)
 
+    # Re-enable and remove proxy devices
     for device_entry in devices:
         _LOGGER.debug("Purging device: %s (ID: %s)", device_entry.name, device_entry.id)
+        # Clear disabled to avoid wrong state on restored orphan
+        if device_entry.disabled_by:
+            dev_reg.async_update_device(device_entry.id, disabled_by=None)
+            
         dev_reg.async_remove_device(device_entry.id)
 
 
