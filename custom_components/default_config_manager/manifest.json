@@ -1,7 +1,7 @@
 {
   "domain": "default_config_manager",
   "name": "Default Config Manager",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "documentation": "https://github.com/earto/default_config_manager",
   "issue_tracker": "https://github.com/earto/default_config_manager/issues",
   "requirements": [],
