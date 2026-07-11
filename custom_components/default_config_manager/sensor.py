@@ -7,7 +7,6 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EntityCategory, __version__
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -16,6 +15,7 @@ from .const import CONF_ADVANCED_MODE, DOMAIN
 from .helpers import get_static_integrations
 
 _LOGGER = logging.getLogger(__name__)
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -30,13 +30,9 @@ async def async_setup_entry(
 
     advanced_mode = entry.options.get(CONF_ADVANCED_MODE, False)
     
-    # Mode 2: Clean up the registry to revert to factory state
+    # Clean up is now handled strictly in __init__.py during transitions.
     if not advanced_mode:
-        _LOGGER.debug("Basic Mode active. Purging proxy devices from registry.")
-        device_registry = dr.async_get(hass)
-        devices = dr.async_entries_for_config_entry(device_registry, entry.entry_id)
-        for device in devices:
-            device_registry.async_remove_device(device.id)
+        _LOGGER.debug("Basic Mode active. Proxy device creation skipped.")
         return
 
     # Mode 3: Advanced Mode active. Build the proxy devices.
