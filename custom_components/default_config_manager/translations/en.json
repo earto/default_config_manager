@@ -59,9 +59,7 @@
       }
     },
     "error": {
-      "must_acknowledge": "You must check the box to confirm you understand the risks before saving.",
-      "mode_0_description": "Default Config Manager is missing from configuration.yaml. Add `default_config_manager:` to enable management.",
-      "mode_1_description": "Both `default_config:` and `default_config_manager:` are enabled. Please remove `default_config:` from configuration.yaml to enable management."
+      "must_acknowledge": "You must check the box to confirm you understand the risks before saving."
     }
   },
   "issues": {
