@@ -70,6 +70,9 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         static_integrations = await get_static_integrations(hass)
         total_count = len(static_integrations)
 
+        # Determine which instructional key to use from strings.json
+        description_key = f"mode_{self.mode_code}_description"
+
         schema_dict = {
             vol.Required(
                 "mode_dropdown",
@@ -90,9 +93,11 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             description_placeholders={
                 "default_config_version": default_config_version,
                 "total_integrations": total_count,
+                "description_key": description_key,
             },
         )
 
+    
     async def async_step_init_managed(self, user_input: dict[str, Any] | None = None):
         """Handle options step for Modes 2 & 3 (Managed/Advanced modes)."""
         _LOGGER.debug("options_flow async_step_init_managed called, user_input=%s", user_input)
