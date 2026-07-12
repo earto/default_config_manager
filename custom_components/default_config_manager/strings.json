@@ -20,30 +20,53 @@
   },
   "options": {
     "step": {
-      "init_yaml": {
+      "init_unmanaged": {
         "title": "Default Config Manager",
         "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}",
         "data": {
           "mode_dropdown": "Operating Mode"
         },
         "data_description": {
-          "mode_dropdown": "Default Config Manager is ready. Remove default_config from your configuration.yaml and restart Home Assistant to enable management."
+          "mode_dropdown": "Default Config Manager is currently unmanaged. Ensure `default_config_manager:` is in configuration.yaml and `default_config:` is removed, then restart Home Assistant to enable management."
         }
       },
       "init_managed": {
         "title": "Default Config Manager",
-        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}",
+        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}  \nIncluded Integrations: {total_integrations}",
+        "sections": {
+          "integrations_section": {
+            "name": "Integrations Running ({count_text})",
+            "description": "{components_list}"
+          }
+        },
         "data": {
-          "mode_dropdown": "Operating Mode",
-          "integration_list": "Active Default Integrations"
+          "mode_dropdown": "Operating Mode"
         },
         "data_description": {
           "mode_dropdown": "Default Config Manager is managing default integrations."
         }
+      },
+      "disclaimer": {
+        "title": "Advanced Mode Warning",
+        "description": "⚠️ **WARNING:** Advanced mode allows you to disable core components. Misconfiguration can break your dashboards or cause system instability.\n\nPlease confirm you want to proceed.",
+        "data": {
+          "acknowledge": "I understand the risks and wish to enable Advanced Mode."
+        }
+      },
+      "revert_basic": {
+        "title": "Revert to Managed Mode",
+        "description": "You are switching back to Managed Mode. Any default integrations you previously disabled will be automatically re-enabled.\n\nClick Submit to confirm and save your changes."
       }
+    },
+    "error": {
+      "must_acknowledge": "You must check the box to confirm you understand the risks before saving."
     }
   },
   "issues": {
+    "missing_yaml": {
+      "title": "Missing Configuration",
+      "description": "Default Config Manager was not found in your configuration.yaml file. Please add `default_config_manager:` to your configuration.yaml and restart Home Assistant to enable management."
+    },
     "restart_required": {
       "title": "Restart Required",
       "description": "Changes to your Default Config integrations have been detected. A restart is required for these changes to take effect.",
