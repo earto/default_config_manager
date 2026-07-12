@@ -70,7 +70,7 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         static_integrations = await get_static_integrations(hass)
         total_count = len(static_integrations)
 
-        # Define text based on the mode
+        # 1. Define the actual text based on the mode so HA renders the English correctly
         if self.mode_code == MODE_0:
             desc_text = "Default Config Manager is missing from configuration.yaml. Add `default_config_manager:` to enable management."
         else:
