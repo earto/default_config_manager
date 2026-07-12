@@ -19,7 +19,8 @@ from .const import CONF_ADVANCED_MODE, DOMAIN, MODE_1, MODE_2, MODE_3
 from .helpers import get_static_integrations
 
 PLATFORMS = [Platform.SENSOR]
-CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
+# CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
+CONFIG_SCHEMA = vol.Schema({DOMAIN: vol.Schema({})}, extra=vol.ALLOW_EXTRA)
 
 _LOGGER = logging.getLogger(__name__)
 
