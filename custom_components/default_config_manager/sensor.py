@@ -11,7 +11,7 @@ from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import CONF_ADVANCED_MODE, DOMAIN
+from .const import DOMAIN, MODE_3
 from .helpers import get_static_integrations
 
 _LOGGER = logging.getLogger(__name__)
@@ -25,14 +25,11 @@ async def async_setup_entry(
     """Set up the Default Config Manager diagnostic sensors."""
     _LOGGER.debug("Initializing Default Config Manager sensor platform")
     
-    if "default_config" in hass.config.components:
-        return
-
-    advanced_mode = entry.options.get(CONF_ADVANCED_MODE, False)
+    # Unified Source of Truth: Check the mode_code stored by __init__.py
+    mode_code = hass.data.get(DOMAIN, {}).get(entry.entry_id)
     
-    # Clean up is now handled strictly in __init__.py during transitions.
-    if not advanced_mode:
-        _LOGGER.debug("Basic Mode active. Proxy device creation skipped.")
+    if mode_code != MODE_3:
+        _LOGGER.debug("Advanced Mode (Mode 3) not active. Proxy device creation skipped.")
         return
 
     # Mode 3: Advanced Mode active. Build the proxy devices.

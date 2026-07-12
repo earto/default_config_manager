@@ -14,20 +14,20 @@
       }
     },
     "error": {
-      "default_config_enabled": "default_config is still enabled in configuration.yaml. Remove it to manage default_config here.",
+      "default_config_enabled": "default_config is enabled in configuration.yaml. Unable to manage integrations.",
       "advanced_warning": "Advanced mode allows disabling default_config integrations. Use with caution."
     }
   },
   "options": {
     "step": {
-      "init_yaml": {
+      "init_unmanaged": {
         "title": "Default Config Manager",
         "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}",
         "data": {
           "mode_dropdown": "Operating Mode"
         },
         "data_description": {
-          "mode_dropdown": "Default Config Manager is ready. Remove default_config from your configuration.yaml and restart Home Assistant to enable management."
+          "mode_dropdown": "Default Config Manager is currently inactive. Ensure `default_config_manager:` is in configuration.yaml and `default_config:` is removed, then restart Home Assistant to enable management."
         }
       },
       "init_managed": {
@@ -63,14 +63,18 @@
     }
   },
   "issues": {
+    "missing_yaml": {
+      "title": "Missing Configuration",
+      "description": "Please add `default_config_manager:` to your configuration.yaml and restart Home Assistant to enable management."
+    },
     "restart_required": {
       "title": "Restart Required",
-      "description": "Changes to your Default Config integrations have been detected. A restart is required for these changes to take effect.",
+      "description": "Changes to Default Config integrations have been detected. A restart is required for these changes to take effect.",
       "fix_flow": {
         "step": {
           "confirm": {
             "title": "Restart Home Assistant",
-            "description": "Are you sure you want to restart Home Assistant to apply your changes?"
+            "description": "Are you sure you want to restart Home Assistant to apply changes?"
           }
         }
       }
