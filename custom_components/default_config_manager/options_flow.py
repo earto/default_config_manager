@@ -70,12 +70,6 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         static_integrations = await get_static_integrations(hass)
         total_count = len(static_integrations)
 
-        # 1. Define the actual text based on the mode so HA renders the English correctly
-        if self.mode_code == MODE_0:
-            desc_text = "Default Config Manager is missing from configuration.yaml. Add `default_config_manager:` to enable management."
-        else:
-            desc_text = "Both `default_config:` and `default_config_manager:` are enabled. Please remove `default_config:` from configuration.yaml to enable management."
-
         schema_dict = {
             vol.Required(
                 "mode_dropdown",
@@ -96,11 +90,9 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             description_placeholders={
                 "default_config_version": default_config_version,
                 "total_integrations": total_count,
-                "description_text": desc_text,  # 2. Match the {description_text} in en.json
             },
         )
 
-    
     async def async_step_init_managed(self, user_input: dict[str, Any] | None = None):
         """Handle options step for Modes 2 & 3 (Managed/Advanced modes)."""
         _LOGGER.debug("options_flow async_step_init_managed called, user_input=%s", user_input)
