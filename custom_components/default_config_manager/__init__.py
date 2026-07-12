@@ -109,10 +109,19 @@ async def _async_purge_proxy_devices(hass: HomeAssistant, entry: ConfigEntry) ->
 
 # --- Setup Logic ---
 
+# --- Setup Logic ---
+
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Default Config Manager integration."""
     _LOGGER.debug("Setting up Default Config Manager")
     _delete_restart_issue(hass)
+
+    # Detect if 'default_config_manager:' is present in configuration.yaml
+    launched_via_yaml = DOMAIN in config
+    if launched_via_yaml:
+        _LOGGER.debug("YAML check: '%s' detected in configuration.yaml", DOMAIN)
+    else:
+        _LOGGER.debug("YAML check: '%s' NOT detected in configuration.yaml", DOMAIN)
 
     yaml_config_enabled = "default_config" in hass.config.components
     components = await get_static_integrations(hass)
