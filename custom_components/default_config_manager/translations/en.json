@@ -27,7 +27,7 @@
           "mode_dropdown": "Operating Mode"
         },
         "data_description": {
-          "mode_dropdown": "{description_text}"
+          "mode_dropdown": "Default Config Manager is currently inactive. Ensure `default_config_manager:` is in configuration.yaml and `default_config:` is removed, then restart Home Assistant to enable management."
         }
       },
       "init_managed": {
