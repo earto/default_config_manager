@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import voluptuous as vol
 
 import homeassistant.components.default_config as ha_default_config
 from homeassistant.config_entries import ConfigEntry
