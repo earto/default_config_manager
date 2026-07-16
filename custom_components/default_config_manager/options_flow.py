@@ -102,8 +102,8 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             step_id=form_step,
             data_schema=vol.Schema(schema_dict),
             description_placeholders={
-                "default_config_version": default_config_version,
-                "total_integrations": total_count,
+                "default_config_version": str(default_config_version),
+                "total_integrations": str(total_count),
             },
         )
 
@@ -162,10 +162,10 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             step_id="init_managed",
             data_schema=vol.Schema(schema_dict),
             description_placeholders={
-                "default_config_version": default_config_version,
-                "total_integrations": total_count,
-                "count_text": count_text,
-                "components_list": components_list,
+                "default_config_version": str(default_config_version),
+                "total_integrations": str(total_count),
+                "count_text": str(count_text),
+                "components_list": str(components_list),
             },
         )
 
