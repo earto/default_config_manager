@@ -70,6 +70,17 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         static_integrations = await get_static_integrations(hass)
         total_count = len(static_integrations)
 
+        # ROUTING LOGIC: Determine the exact YAML state to show the correct UI text
+        factory_yaml_enabled = "default_config" in hass.config.components
+        dcm_yaml_enabled = DOMAIN in hass.config.components
+
+        if factory_yaml_enabled and not dcm_yaml_enabled:
+            form_step = "init_unmanaged_mode_1_factory_only"
+        elif factory_yaml_enabled and dcm_yaml_enabled:
+            form_step = "init_unmanaged_mode_1_both"
+        else:
+            form_step = "init_unmanaged_mode_0"
+
         schema_dict = {
             vol.Required(
                 "mode_dropdown",
@@ -85,7 +96,7 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         }
 
         return self.async_show_form(
-            step_id="init_unmanaged",
+            step_id=form_step,
             data_schema=vol.Schema(schema_dict),
             description_placeholders={
                 "default_config_version": default_config_version,
