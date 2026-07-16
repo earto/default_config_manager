@@ -22,7 +22,7 @@
     "step": {
       "init_unmanaged_mode_0": {
         "title": "Default Config Manager",
-        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}  \nIncluded Integrations: {total_integrations}",
+        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}  \nNot Enabled",
         "data": {
           "mode_dropdown": "Operating Mode"
         },
