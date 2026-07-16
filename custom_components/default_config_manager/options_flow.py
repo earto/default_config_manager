@@ -38,25 +38,24 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         self.mode_code = MODE_2 # Default fallback
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None):
-        """First step dispatcher to routing methods."""
-        factory_yaml_enabled = "default_config" in self.hass.config.components
-        dcm_yaml_enabled = DOMAIN in self.hass.config.components
+        """First step dispatcher, reading from established init state."""
+        # Pull the mode that async_setup established
+        self.mode_code = self.hass.data[DOMAIN].get(self._config_entry.entry_id, MODE_2)
         
-        _LOGGER.debug(
-            "options_flow init: factory_yaml=%s, dcm_yaml=%s", 
-            factory_yaml_enabled, dcm_yaml_enabled
-        )
+        _LOGGER.debug("options_flow init: resolved mode_code=%s", self.mode_code)
         
-        # Route Mode 0 and Mode 1 to the exact required HA callbacks
-        if factory_yaml_enabled and not dcm_yaml_enabled:
-            self.mode_code = MODE_1
-            return await self.async_step_init_unmanaged_mode_1_factory_only(user_input)
-        elif factory_yaml_enabled and dcm_yaml_enabled:
-            self.mode_code = MODE_1
-            return await self.async_step_init_unmanaged_mode_1_both(user_input)
-        elif not dcm_yaml_enabled:
-            self.mode_code = MODE_0
+        # Route based on the resolved mode_code
+        if self.mode_code == MODE_0:
             return await self.async_step_init_unmanaged_mode_0(user_input)
+        
+        if self.mode_code == MODE_1:
+            # Check YAML state to decide which Mode 1 sub-step to show
+            factory_yaml_enabled = "default_config" in self.hass.config.components
+            dcm_yaml_enabled = DOMAIN in self.hass.config.components
+            
+            if factory_yaml_enabled and dcm_yaml_enabled:
+                return await self.async_step_init_unmanaged_mode_1_both(user_input)
+            return await self.async_step_init_unmanaged_mode_1_factory_only(user_input)
             
         return await self.async_step_init_managed(user_input)
 
