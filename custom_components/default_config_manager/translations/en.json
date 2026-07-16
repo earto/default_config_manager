@@ -20,14 +20,34 @@
   },
   "options": {
     "step": {
-      "init_unmanaged": {
+      "init_unmanaged_mode_0": {
         "title": "Default Config Manager",
         "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}",
         "data": {
           "mode_dropdown": "Operating Mode"
         },
         "data_description": {
-          "mode_dropdown": "Default Config Manager is currently inactive. Ensure `default_config_manager:` is in configuration.yaml and `default_config:` is removed, then restart Home Assistant to enable management."
+          "mode_dropdown": "Default Config Manager is missing from configuration.yaml. Add `default_config_manager:` to enable management."
+        }
+      },
+      "init_unmanaged_mode_1_factory_only": {
+        "title": "Default Config Manager",
+        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}",
+        "data": {
+          "mode_dropdown": "Operating Mode"
+        },
+        "data_description": {
+          "mode_dropdown": "Default Config Manager is missing. Please remove `default_config:` and add `default_config_manager:` in your configuration.yaml to enable management."
+        }
+      },
+      "init_unmanaged_mode_1_both": {
+        "title": "Default Config Manager",
+        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}",
+        "data": {
+          "mode_dropdown": "Operating Mode"
+        },
+        "data_description": {
+          "mode_dropdown": "Both `default_config:` and `default_config_manager:` are enabled. Please remove `default_config:` from configuration.yaml to enable management."
         }
       },
       "init_managed": {
