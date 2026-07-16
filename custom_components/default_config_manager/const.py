@@ -16,3 +16,4 @@ MODE_DISPLAY = {
     MODE_1: "Unmanaged (Factory default_config active)",
     MODE_2: "Managed (Read Only)",
     MODE_3: "Managed (Advanced)",
+}
