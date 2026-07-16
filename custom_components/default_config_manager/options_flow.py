@@ -47,19 +47,34 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             factory_yaml_enabled, dcm_yaml_enabled
         )
         
-        # Route Mode 0 and Mode 1 to the unmanaged flow
-        if factory_yaml_enabled:
+        # Route Mode 0 and Mode 1 to the exact required HA callbacks
+        if factory_yaml_enabled and not dcm_yaml_enabled:
             self.mode_code = MODE_1
-            return await self.async_step_init_unmanaged(user_input)
+            return await self.async_step_init_unmanaged_mode_1_factory_only(user_input)
+        elif factory_yaml_enabled and dcm_yaml_enabled:
+            self.mode_code = MODE_1
+            return await self.async_step_init_unmanaged_mode_1_both(user_input)
         elif not dcm_yaml_enabled:
             self.mode_code = MODE_0
-            return await self.async_step_init_unmanaged(user_input)
+            return await self.async_step_init_unmanaged_mode_0(user_input)
             
         return await self.async_step_init_managed(user_input)
 
-    async def async_step_init_unmanaged(self, user_input: dict[str, Any] | None = None):
-        """Handle options step for Mode 0 and Mode 1 (Unmanaged modes)."""
-        _LOGGER.debug("options_flow async_step_init_unmanaged called, mode=%s", self.mode_code)
+    async def async_step_init_unmanaged_mode_0(self, user_input: dict[str, Any] | None = None):
+        """Handle landing step for Mode 0."""
+        return await self._async_unmanaged_base_form(user_input, "init_unmanaged_mode_0")
+
+    async def async_step_init_unmanaged_mode_1_factory_only(self, user_input: dict[str, Any] | None = None):
+        """Handle landing step for Mode 1 (factory default config only)."""
+        return await self._async_unmanaged_base_form(user_input, "init_unmanaged_mode_1_factory_only")
+
+    async def async_step_init_unmanaged_mode_1_both(self, user_input: dict[str, Any] | None = None):
+        """Handle landing step for Mode 1 (both integrations enabled)."""
+        return await self._async_unmanaged_base_form(user_input, "init_unmanaged_mode_1_both")
+
+    async def _async_unmanaged_base_form(self, user_input: dict[str, Any] | None, form_step: str):
+        """Shared logic for all unmanaged options steps."""
+        _LOGGER.debug("options_flow unmanaged form called, mode=%s, step=%s", self.mode_code, form_step)
 
         if user_input is not None:
             _LOGGER.debug("Closing Unmanaged options flow.")
@@ -69,17 +84,6 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         default_config_version = await get_default_config_version(hass)
         static_integrations = await get_static_integrations(hass)
         total_count = len(static_integrations)
-
-        # ROUTING LOGIC: Determine the exact YAML state to show the correct UI text
-        factory_yaml_enabled = "default_config" in hass.config.components
-        dcm_yaml_enabled = DOMAIN in hass.config.components
-
-        if factory_yaml_enabled and not dcm_yaml_enabled:
-            form_step = "init_unmanaged_mode_1_factory_only"
-        elif factory_yaml_enabled and dcm_yaml_enabled:
-            form_step = "init_unmanaged_mode_1_both"
-        else:
-            form_step = "init_unmanaged_mode_0"
 
         schema_dict = {
             vol.Required(
