@@ -51,7 +51,7 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         if self.mode_code == MODE_1:
             # Check YAML state to decide which Mode 1 sub-step to show
             factory_yaml_enabled = "default_config" in self.hass.config.components
-            dcm_yaml_enabled = DOMAIN in self.hass.config.components
+            dcm_yaml_enabled = self.hass.data[DOMAIN].get("launched_via_yaml", False)
             
             if factory_yaml_enabled and dcm_yaml_enabled:
                 return await self.async_step_init_unmanaged_mode_1_both(user_input)
