@@ -22,7 +22,7 @@
     "step": {
       "init_unmanaged_mode_0": {
         "title": "Default Config Manager",
-        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}",
+        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}  \nIncluded Integrations: {total_integrations}",
         "data": {
           "mode_dropdown": "Operating Mode"
         },
@@ -32,7 +32,7 @@
       },
       "init_unmanaged_mode_1_factory_only": {
         "title": "Default Config Manager",
-        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}",
+        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}  \nIncluded Integrations: {total_integrations}",
         "data": {
           "mode_dropdown": "Operating Mode"
         },
@@ -42,7 +42,7 @@
       },
       "init_unmanaged_mode_1_both": {
         "title": "Default Config Manager",
-        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}",
+        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}  \nIncluded Integrations: {total_integrations}",
         "data": {
           "mode_dropdown": "Operating Mode"
         },
