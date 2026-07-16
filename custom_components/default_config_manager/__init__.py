@@ -103,6 +103,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     ir.async_delete_issue(hass, DOMAIN, "missing_yaml")
 
     launched_via_yaml = DOMAIN in config
+    hass.data[DOMAIN]["launched_via_yaml"] = launched_via_yaml
     yaml_config_enabled = "default_config" in config
     components = await get_static_integrations(hass)
     
