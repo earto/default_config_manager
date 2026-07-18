@@ -87,6 +87,14 @@
       "title": "Missing Configuration",
       "description": "Please add 'default_config_manager:' to configuration.yaml and restart Home Assistant."
     },
+    "factory_only": {
+      "title": "Incorrect Configuration",
+      "description": "Factory Default Config is currently active. Please change 'default_config:' to 'default_config_manager:' in your configuration.yaml and restart Home Assistant."
+    },
+    "both_enabled": {
+      "title": "Conflicting Configurations",
+      "description": "Both 'default_config:' and 'default_config_manager:' are enabled. Please remove 'default_config:' from your configuration.yaml and restart Home Assistant."
+    },
     "restart_required": {
       "title": "Restart Required",
       "description": "Changes to Default Config integrations have been detected. A restart is required for these changes to take effect.",
