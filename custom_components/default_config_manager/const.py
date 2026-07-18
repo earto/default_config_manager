@@ -13,7 +13,7 @@ MODE_3 = 3  # Managed (Advanced)
 
 MODE_DISPLAY = {
     MODE_0: "None (Missing from config file)",
-    MODE_1: "Unmanaged (Factory default_config active)",
-    MODE_2: "Managed (Read Only)",
+    MODE_1: "Unmanaged (default_config is enabled)",
+    MODE_2: "Managed (Default)",
     MODE_3: "Managed (Advanced)",
 }
