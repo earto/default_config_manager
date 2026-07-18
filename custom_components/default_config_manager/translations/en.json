@@ -1,5 +1,8 @@
 {
   "config": {
+    "abort": {
+      "single_instance_allowed": "Default Config Manager is already installed."
+    },
     "step": {
       "user": {
         "title": "Default Config Manager",
