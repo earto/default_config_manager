@@ -106,6 +106,8 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     # 2. Cleanup and state setup
     _delete_restart_issue(hass)
     ir.async_delete_issue(hass, DOMAIN, "missing_yaml")
+    ir.async_delete_issue(hass, DOMAIN, "factory_only")
+    ir.async_delete_issue(hass, DOMAIN, "both_enabled")
 
     launched_via_yaml = DOMAIN in config
     hass.data[DOMAIN]["launched_via_yaml"] = launched_via_yaml
@@ -138,13 +140,27 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     
     for entry in hass.config_entries.async_entries(DOMAIN):
          hass.data[DOMAIN][entry.entry_id] = mode_code
-
+    
     if mode_code == MODE_0:
-        ir.async_create_issue(hass, DOMAIN, "missing_yaml", is_fixable=False, 
-                              severity=ir.IssueSeverity.WARNING, translation_key="missing_yaml")
+        # Neither default_config is in configuration.yaml
+        ir.async_create_issue(
+            hass, DOMAIN, "missing_yaml", is_fixable=False, 
+            severity=ir.IssueSeverity.ERROR, translation_key="missing_yaml")
         return True
     
     if mode_code == MODE_1:
+        if launched_via_yaml:
+            # Both default_config and default_config_manager are in configuration.yaml
+            ir.async_create_issue(
+                hass, DOMAIN, "both_enabled", is_fixable=False,
+                severity=ir.IssueSeverity.WARNING, translation_key="both_enabled"
+            )
+        else:
+            # Only default_config is in configuration.yaml
+            ir.async_create_issue(
+                hass, DOMAIN, "factory_only", is_fixable=False,
+                severity=ir.IssueSeverity.WARNING, translation_key="factory_only"
+            )
         return True
 
     enabled_components = components if mode_code == MODE_2 else [
