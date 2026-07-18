@@ -99,10 +99,16 @@ async def _async_purge_proxy_devices(hass: HomeAssistant, entry: ConfigEntry) ->
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Default Config Manager integration."""
     _LOGGER.debug("Setting up Default Config Manager")
+    
+    # 1. Ensure the data container exists first
+    hass.data.setdefault(DOMAIN, {})
+    
+    # 2. Cleanup and state setup
     _delete_restart_issue(hass)
     ir.async_delete_issue(hass, DOMAIN, "missing_yaml")
 
     launched_via_yaml = DOMAIN in config
+    hass.data[DOMAIN]["launched_via_yaml"] = launched_via_yaml
     yaml_config_enabled = "default_config" in config
     components = await get_static_integrations(hass)
     
@@ -130,7 +136,6 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
     _LOGGER.info("Default Config Manager running in mode_code=%s", mode_code)
     
-    hass.data.setdefault(DOMAIN, {})
     for entry in hass.config_entries.async_entries(DOMAIN):
          hass.data[DOMAIN][entry.entry_id] = mode_code
 
