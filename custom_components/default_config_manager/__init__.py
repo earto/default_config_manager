@@ -147,8 +147,10 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         return True
     
     if mode_code == MODE_0:
-        ir.async_create_issue(hass, DOMAIN, "missing_yaml", is_fixable=False, 
-                              severity=ir.IssueSeverity.WARNING, translation_key="missing_yaml")
+        # Neither default_config is in configuration.yaml
+        ir.async_create_issue(
+            hass, DOMAIN, "missing_yaml", is_fixable=False, 
+            severity=ir.IssueSeverity.ERROR, translation_key="missing_yaml")
         return True
     
     if mode_code == MODE_1:
@@ -156,13 +158,13 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             # Both default_config and default_config_manager are in configuration.yaml
             ir.async_create_issue(
                 hass, DOMAIN, "both_enabled", is_fixable=False,
-                severity=ir.IssueSeverity.ERROR, translation_key="both_enabled"
+                severity=ir.IssueSeverity.WARNING, translation_key="both_enabled"
             )
         else:
             # Only default_config is in configuration.yaml
             ir.async_create_issue(
                 hass, DOMAIN, "factory_only", is_fixable=False,
-                severity=ir.IssueSeverity.ERROR, translation_key="factory_only"
+                severity=ir.IssueSeverity.WARNING, translation_key="factory_only"
             )
         return True
 
