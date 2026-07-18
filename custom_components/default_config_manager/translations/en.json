@@ -37,7 +37,7 @@
           "mode_dropdown": "Operating Mode"
         },
         "data_description": {
-          "mode_dropdown": "Error: Factory Default Config is enabled. Change 'default_config:' to 'default_config_manager:' in configuration.yaml then restart."
+          "mode_dropdown": "Error: Factory Default Config is enabled. Change 'default_config:' to 'default_config_manager:' in configuration.yaml then restart. [More information](https://github.com/earto/default_config_manager)."
         }
       },
       "init_unmanaged_mode_1_both": {
@@ -47,7 +47,7 @@
           "mode_dropdown": "Operating Mode"
         },
         "data_description": {
-          "mode_dropdown": "Error: Both 'default_config:' and 'default_config_manager:' are enabled. Remove 'default_config:' from configuration.yaml then restart."
+          "mode_dropdown": "Error: Both 'default_config:' and 'default_config_manager:' are enabled. Remove 'default_config:' from configuration.yaml then restart. [More information](https://github.com/earto/default_config_manager)."
         }
       },
       "init_managed": {
@@ -63,7 +63,7 @@
           "mode_dropdown": "Operating Mode"
         },
         "data_description": {
-          "mode_dropdown": "Default Config Manager is managing integrations. For full control, switch to Advanced mode."
+          "mode_dropdown": "Default Config Manager is managing default integrations. [More information](https://github.com/earto/default_config_manager).""
         }
       },
       "disclaimer": {
