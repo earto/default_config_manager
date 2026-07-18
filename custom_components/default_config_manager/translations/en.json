@@ -63,7 +63,7 @@
           "mode_dropdown": "Operating Mode"
         },
         "data_description": {
-          "mode_dropdown": "Default Config Manager is managing default integrations. [More information](https://github.com/earto/default_config_manager)."
+          "mode_dropdown": "Default Config Manager is managing default integrations. Use Advanced Mode for full control. [More information](https://github.com/earto/default_config_manager)."
         }
       },
       "disclaimer": {
