@@ -27,7 +27,7 @@
           "mode_dropdown": "Operating Mode"
         },
         "data_description": {
-          "mode_dropdown": "Error: Default Config Manager is missing from config file. Add 'default_config_manager:' to configuration.yaml then restart. [More information.](https://github.com/earto/default_config_manager)."
+          "mode_dropdown": "Error: Default Config Manager is missing from config file. Please add 'default_config_manager:' to configuration.yaml then restart. [More information](https://github.com/earto/default_config_manager)."
         }
       },
       "init_unmanaged_mode_1_factory_only": {
