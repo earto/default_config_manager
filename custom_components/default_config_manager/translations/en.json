@@ -85,15 +85,15 @@
   "issues": {
     "missing_yaml": {
       "title": "Missing Configuration",
-      "description": "Please add 'default_config_manager:' to configuration.yaml and restart Home Assistant."
+      "description": "Please add 'default_config_manager:' to configuration.yaml and restart Home Assistant.\n\n[More information](https://github.com/earto/default_config_manager)."
     },
     "factory_only": {
       "title": "Incorrect Configuration",
-      "description": "Factory Default Config is currently active. Please change 'default_config:' to 'default_config_manager:' in your configuration.yaml and restart Home Assistant."
+      "description": "Factory Default Config is currently active. Please change 'default_config:' to 'default_config_manager:' in your configuration.yaml and restart Home Assistant.\n\n[More information](https://github.com/earto/default_config_manager)."
     },
     "both_enabled": {
-      "title": "Conflicting Configurations",
-      "description": "Both 'default_config:' and 'default_config_manager:' are enabled. Please remove 'default_config:' from your configuration.yaml and restart Home Assistant."
+      "title": "Incorrect Configuration",
+      "description": "Both 'default_config:' and 'default_config_manager:' are enabled. Please remove 'default_config:' from your configuration.yaml and restart Home Assistant.\n\n[More information](https://github.com/earto/default_config_manager)."
     },
     "restart_required": {
       "title": "Restart Required",
