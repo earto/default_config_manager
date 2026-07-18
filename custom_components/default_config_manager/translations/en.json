@@ -27,7 +27,7 @@
           "mode_dropdown": "Operating Mode"
         },
         "data_description": {
-          "mode_dropdown": "Error: Default Config Manager is missing from config file.\n Add 'default_config_manager:' to configuration.yaml."
+          "mode_dropdown": "Error: Default Config Manager is missing from config file. This is required for stage 1 startup. Add 'default_config_manager:' to configuration.yaml then restart."
         }
       },
       "init_unmanaged_mode_1_factory_only": {
@@ -37,7 +37,7 @@
           "mode_dropdown": "Operating Mode"
         },
         "data_description": {
-          "mode_dropdown": "Default Config Manager is missing. Please remove `default_config:` and add `default_config_manager:` in your configuration.yaml to enable management."
+          "mode_dropdown": "Error: Factory Default Config is enabled. Change 'default_config:' to 'default_config_manager:' in configuration.yaml then restart."
         }
       },
       "init_unmanaged_mode_1_both": {
@@ -47,7 +47,7 @@
           "mode_dropdown": "Operating Mode"
         },
         "data_description": {
-          "mode_dropdown": "Both `default_config:` and `default_config_manager:` are enabled. Please remove `default_config:` from configuration.yaml to enable management."
+          "mode_dropdown": "Error: Both 'default_config:' and 'default_config_manager:' are enabled. Remove 'default_config:' from configuration.yaml then restart."
         }
       },
       "init_managed": {
@@ -63,19 +63,19 @@
           "mode_dropdown": "Operating Mode"
         },
         "data_description": {
-          "mode_dropdown": "Default Config Manager is managing default integrations."
+          "mode_dropdown": "Default Config Manager is managing integrations. For full control, switch to Advanced mode."
         }
       },
       "disclaimer": {
         "title": "Advanced Mode Warning",
-        "description": "⚠️ **WARNING:** Advanced mode allows you to disable core components. Misconfiguration can break your dashboards or cause system instability.\n\nPlease confirm you want to proceed.",
+        "description": "⚠️ **WARNING:** Advanced mode allows you to disable core components. Do your research as misconfiguration can break core functionality and affect integrations.\n\nPlease confirm if you want to proceed.",
         "data": {
-          "acknowledge": "I understand the risks and wish to enable Advanced Mode."
+          "acknowledge": "I understand the risks, enable Advanced Mode."
         }
       },
       "revert_basic": {
         "title": "Revert to Managed Mode",
-        "description": "You are switching back to Managed Mode. Any default integrations you previously disabled will be automatically re-enabled.\n\nClick Submit to confirm and save your changes."
+        "description": "You are switching back to Basic Mode. Any disabled integrations will now be re-enabled.\n\nClick Submit to confirm or X to cancel."
       }
     },
     "error": {
@@ -85,7 +85,7 @@
   "issues": {
     "missing_yaml": {
       "title": "Missing Configuration",
-      "description": "Please add `default_config_manager:` to your configuration.yaml and restart Home Assistant to enable management."
+      "description": "Please add 'default_config_manager:' to configuration.yaml and restart Home Assistant."
     },
     "restart_required": {
       "title": "Restart Required",
@@ -94,7 +94,7 @@
         "step": {
           "confirm": {
             "title": "Restart Home Assistant",
-            "description": "Are you sure you want to restart Home Assistant to apply changes?"
+            "description": "Are you sure you want to restart to apply changes?"
           }
         }
       }
