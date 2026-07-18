@@ -89,7 +89,7 @@
     },
     "restart_required": {
       "title": "Restart Required",
-      "description": "Changes to Default Config integrations have been detected. A restart is required for these changes to take effect.",
+      "description": "Changes to Default Config integrations have been detected. A restart is required for these changes to take effect."
       "fix_flow": {
         "step": {
           "confirm": {
