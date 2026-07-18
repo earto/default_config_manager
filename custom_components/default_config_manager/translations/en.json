@@ -27,7 +27,7 @@
           "mode_dropdown": "Operating Mode"
         },
         "data_description": {
-          "mode_dropdown": "Default Config Manager is missing from configuration.yaml. Add `default_config_manager:` to enable management."
+          "mode_dropdown": "Error: Default Config Manager is missing from config file.\n Add 'default_config_manager:' to configuration.yaml."
         }
       },
       "init_unmanaged_mode_1_factory_only": {
