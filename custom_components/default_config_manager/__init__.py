@@ -140,11 +140,6 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     
     for entry in hass.config_entries.async_entries(DOMAIN):
          hass.data[DOMAIN][entry.entry_id] = mode_code
-
-    if mode_code == MODE_0:
-        ir.async_create_issue(hass, DOMAIN, "missing_yaml", is_fixable=False, 
-                              severity=ir.IssueSeverity.WARNING, translation_key="missing_yaml")
-        return True
     
     if mode_code == MODE_0:
         # Neither default_config is in configuration.yaml
