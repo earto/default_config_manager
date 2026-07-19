@@ -10,6 +10,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.loader import async_get_integration
 
 from .const import DOMAIN, MODE_3
 from .helpers import get_standard_integrations
@@ -37,8 +38,22 @@ async def async_setup_entry(
     entities: list[SensorEntity] = []
 
     for integration in integrations:
+        try:
+            # Fetch the manifest data for the core component
+            integration_info = await async_get_integration(hass, integration)
+            display_name = integration_info.name
+            docs_url = integration_info.manifest.get(
+                "documentation", 
+                f"https://www.home-assistant.io/integrations/{integration}"
+            )
+        except Exception as err:
+            _LOGGER.warning("Failed to load manifest for %s, using fallback: %s", integration, err)
+            # Fallback to standard formatting if the loader fails
+            display_name = integration.replace("_", " ").title()
+            docs_url = f"https://www.home-assistant.io/integrations/{integration}"
+
         entities.append(
-            DefaultConfigDependencySensor(entry, integration)
+            DefaultConfigDependencySensor(entry, integration, display_name, docs_url)
         )
     
     _LOGGER.debug("Adding %s diagnostic entities", len(entities))
@@ -50,16 +65,18 @@ class DefaultConfigDependencySensor(SensorEntity):
     _attr_has_entity_name = True
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
-    def __init__(self, entry: ConfigEntry, integration: str) -> None:
+    def __init__(self, entry: ConfigEntry, integration: str, display_name: str, docs_url: str) -> None:
         self._integration = integration
         self._attr_name = "Status" 
         self._attr_unique_id = f"{entry.entry_id}_dep_{integration}"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"{entry.entry_id}_{integration}")},
-            name=integration.replace("_", " ").title(),
+            name=display_name,
             manufacturer="Home Assistant Core",
+            model="Core Component",
             sw_version=__version__,
             entry_type=DeviceEntryType.SERVICE,
+            configuration_url=docs_url,
         )
 
     def update(self) -> None:
