@@ -140,14 +140,28 @@ class Dependents(SensorEntity):
                 is_after_dep = self._integration in (integration_info.after_dependencies or [])
 
                 if is_dep or is_after_dep:
-                    dependent_names.append(integration_info.name)
+                    # Append the short domain name instead of the friendly name
+                    dependent_names.append(loaded_domain)
 
             except Exception:
                 # Safely ignore any components that fail to load their manifests during runtime
                 continue
 
+        # Format as CSV and protect length
+        if not dependent_names:
+            state_str = "None"
+        else:
+            state_str = ", ".join(sorted(dependent_names))
+            
+            # HA State limit safeguard: truncate if over 255 characters
+            if len(state_str) > 255:
+                state_str = state_str[:252] + "..."
+
         # Update entity states
-        self._attr_native_value = len(dependent_names)
+        self._attr_native_value = state_str
+        
+        # Keep the full list and count in attributes
         self._attr_extra_state_attributes = {
+            "count": len(dependent_names),
             "dependent_integrations": sorted(dependent_names)
         }
