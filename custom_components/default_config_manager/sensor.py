@@ -12,7 +12,7 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN, MODE_3
-from .helpers import get_factory_integrations
+from .helpers import get_standard_integrations
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ async def async_setup_entry(
         return
 
     # Advanced mode enabled, create proxy devices.
-    integrations = await get_factory_integrations(hass)
+    integrations = await get_standard_integrations(hass)
     entities: list[SensorEntity] = []
 
     for integration in integrations:
