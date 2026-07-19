@@ -67,7 +67,6 @@ class Status(SensorEntity):
     
     _attr_has_entity_name = True
     _attr_entity_category = EntityCategory.DIAGNOSTIC
-    _attr_icon = "mdi:play"
 
     def __init__(self, entry: ConfigEntry, integration: str, display_name: str, docs_url: str) -> None:
         self._integration = integration
@@ -87,8 +86,10 @@ class Status(SensorEntity):
         """Check running integrations in registry."""
         if self._integration in self.hass.config.components:
             self._attr_native_value = "Running"
+            self._attr_icon = "mdi:play-circle"  # Icon when running
         else:
             self._attr_native_value = "Disconnected"
+            self._attr_icon = "mdi:stop-circle"  # Icon when not running
 
 
 class Dependents(SensorEntity):
