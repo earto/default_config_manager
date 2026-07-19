@@ -1,7 +1,7 @@
 {
   "config": {
     "abort": {
-      "single_instance_allowed": "Default Config Manager is already installed."
+      "single_instance_allowed": "Default Config Manager is already added."
     },
     "step": {
       "user": {
@@ -71,14 +71,14 @@
       },
       "disclaimer": {
         "title": "Advanced Mode Warning",
-        "description": "⚠️ **WARNING:** Advanced mode allows you to disable core components. Do your research as misconfiguration can break core functionality and affect integrations.\n\nPlease confirm if you want to proceed.",
+        "description": "⚠️ **WARNING:** Advanced mode allows you to disable core components. Take care as misconfiguration can break core functionality and integrations. In the event of any problems, select Basic mode to restore factory behaviour. \n\nPlease confirm if you want to proceed.",
         "data": {
           "acknowledge": "I understand the risks, enable Advanced Mode."
         }
       },
       "revert_basic": {
-        "title": "Revert to Managed Mode",
-        "description": "You are switching back to Basic Mode. Any disabled integrations will now be re-enabled.\n\nClick Submit to confirm or X to cancel."
+        "title": "Change to Basic Mode",
+        "description": "You are changing back to Basic Mode. All standard default integrations will now be re-enabled and restored to factory state.\n\nClick Submit to confirm or X to cancel."
       }
     },
     "error": {
