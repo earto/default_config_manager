@@ -104,7 +104,7 @@ class Dependents(SensorEntity):
         docs_url: str
     ) -> None:
         self._integration = integration
-        self._attr_name = "Dependents (rely on this)"
+        self._attr_name = "Dependents"
         self._attr_unique_id = f"{entry.entry_id}_dependents_{integration}"
         
         # Bind to the exact same device as the Status sensor
