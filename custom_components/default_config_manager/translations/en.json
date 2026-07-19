@@ -93,6 +93,7 @@
     "both_enabled": {
       "title": "Incorrect Configuration",
       "description": "Both Standard and Managed Default Configs are enabled.\n\nPlease remove the standard 'default_config:' from your configuration.yaml then restart Home Assistant.\n\nThis is required for factory startup behaviour. [More information](https://github.com/earto/default_config_manager)."
+    },
     "restart_required": {
       "title": "Restart Required",
       "description": "Changes to enabled integrations have been detected. Restart is required for changes to take effect.",
