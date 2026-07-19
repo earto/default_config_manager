@@ -111,7 +111,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     launched_via_yaml = DOMAIN in config
     hass.data[DOMAIN]["launched_via_yaml"] = launched_via_yaml
     yaml_config_enabled = "default_config" in config
-    integrations = await get_factory_integrations(hass)
+    components = await get_factory_integrations(hass)
     
     advanced_mode = False
     disabled_components: list[str] = []
@@ -120,7 +120,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         if entry.options.get(CONF_ADVANCED_MODE, False):
             advanced_mode = True
             device_registry = dr.async_get(hass)
-            for component in integrations:
+            for component in components:
                 device = device_registry.async_get_device(
                     identifiers={(DOMAIN, f"{entry.entry_id}_{component}")}
                 )
@@ -162,8 +162,8 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             )
         return True
 
-    enabled_components = integrations if mode_code == MODE_2 else [
-        c for c in integrations if c not in disabled_components
+    enabled_components = components if mode_code == MODE_2 else [
+        c for c in components if c not in disabled_components
     ]
     
     setup_tasks = [async_setup_component(hass, c, config) for c in enabled_components]
