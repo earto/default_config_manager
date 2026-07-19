@@ -59,7 +59,7 @@
         "sections": {
           "integrations_section": {
             "name": "Integrations Running ({count_text})",
-            "description": "{components_list}"
+            "description": "{integrations_list}"
           }
         },
         "data": {
