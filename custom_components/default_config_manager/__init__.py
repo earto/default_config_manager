@@ -105,7 +105,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     # Cleanup old issues
     _delete_restart_issue(hass)
     ir.async_delete_issue(hass, DOMAIN, "missing_yaml")
-    ir.async_delete_issue(hass, DOMAIN, "factory_only")
+    ir.async_delete_issue(hass, DOMAIN, "standard_only")
     ir.async_delete_issue(hass, DOMAIN, "both_enabled")
 
     launched_via_yaml = DOMAIN in config
@@ -157,8 +157,8 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         else:
             # Only default_config is in configuration.yaml
             ir.async_create_issue(
-                hass, DOMAIN, "factory_only", is_fixable=False,
-                severity=ir.IssueSeverity.WARNING, translation_key="factory_only"
+                hass, DOMAIN, "standard_only", is_fixable=False,
+                severity=ir.IssueSeverity.WARNING, translation_key="standard_only"
             )
         return True
 
