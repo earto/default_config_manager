@@ -17,7 +17,7 @@ from homeassistant.loader import async_get_integration
 from homeassistant.setup import async_setup_component
 
 from .const import CONF_ADVANCED_MODE, DOMAIN, MODE_0, MODE_1, MODE_2, MODE_3
-from .helpers import get_static_integrations
+from .helpers import get_factory_integrations
 
 PLATFORMS = [Platform.SENSOR]
 CONFIG_SCHEMA = vol.Schema({DOMAIN: vol.Schema({})}, extra=vol.ALLOW_EXTRA)
@@ -48,16 +48,16 @@ async def _async_sync_manifest(hass: HomeAssistant, entry: ConfigEntry, mode_cod
         core_default_config = await async_get_integration(hass, "default_config")
         factory_deps = core_default_config.dependencies
         
-        disabled = []
+        disabled_integrations = []
         if mode_code == MODE_3:
-            components = await get_static_integrations(hass)
+            integrations = await get_factory_integrations(hass)
             dr_inst = dr.async_get(hass)
-            for comp in components:
-                dev = dr_inst.async_get_device(identifiers={(DOMAIN, f"{entry.entry_id}_{comp}")})
+            for integration in integrations:
+                dev = dr_inst.async_get_device(identifiers={(DOMAIN, f"{entry.entry_id}_{integration}")})
                 if dev and dev.disabled_by:
-                    disabled.append(comp)
+                    disabled_integrations.append(integration)
         
-        target = [d for d in factory_deps if d not in disabled]
+        target = [d for d in factory_deps if d not in disabled_integrations]
         path = hass.config.path("custom_components", "default_config_manager", "manifest.json")
         
         def write() -> bool:
@@ -100,10 +100,9 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Default Config Manager integration."""
     _LOGGER.debug("Setting up Default Config Manager")
     
-    # 1. Ensure the data container exists first
     hass.data.setdefault(DOMAIN, {})
     
-    # 2. Cleanup and state setup
+    # Cleanup old issues
     _delete_restart_issue(hass)
     ir.async_delete_issue(hass, DOMAIN, "missing_yaml")
     ir.async_delete_issue(hass, DOMAIN, "factory_only")
