@@ -18,7 +18,7 @@ from .const import (
     MODE_2,
     MODE_DISPLAY,
 )
-from .helpers import get_default_config_version, get_factory_integrations
+from .helpers import get_default_config_version, get_standard_integrations
 from .options_flow import DefaultConfigManagerOptionsFlow
 
 _LOGGER = logging.getLogger(__name__)
@@ -65,7 +65,7 @@ class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         _LOGGER.debug("default_config version=%s", default_config_version)
 
         # Generate the CSV list of active integrations for the UI
-        integrations = await get_factory_integrations(self.hass)
+        integrations = await get_standard_integrations(self.hass)
         active_integrations_csv = ", ".join(integrations)
 
         return self.async_show_form(
