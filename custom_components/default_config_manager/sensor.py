@@ -67,7 +67,7 @@ class Status(SensorEntity):
     
     _attr_has_entity_name = True
     _attr_entity_category = EntityCategory.DIAGNOSTIC
-    _attr_icon = "mdi:cog-play"
+    _attr_icon = "mdi:play"
 
     def __init__(self, entry: ConfigEntry, integration: str, display_name: str, docs_url: str) -> None:
         self._integration = integration
