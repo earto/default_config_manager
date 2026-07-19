@@ -84,16 +84,15 @@
   "issues": {
     "missing_yaml": {
       "title": "Missing Configuration",
-      "description": "No Default Config is enabled.\n\nTo enable Default Config Manager, add 'default_config_manager:' to configuration.yaml then restart Home Assistant. This is required for factory startup behaviour.\n\n[More information](https://github.com/earto/default_config_manager)."
+      "description": "No Default Config is enabled.\n\nTo enable Default Config Manager, add 'default_config_manager:' to configuration.yaml then restart Home Assistant.\n\nThis is required for factory startup behaviour. [More information](https://github.com/earto/default_config_manager)."
     },
     "standard_only": {
       "title": "Incorrect Configuration",
-      "description": "Standard Default Config is enabled.\n\nTo enable Default Config Manager, change 'default_config:' to 'default_config_manager:' in your configuration.yaml then restart Home Assistant. This is required for factory startup behaviour.\n\n[More information](https://github.com/earto/default_config_manager)."
+      "description": "Standard Default Config is enabled.\n\nTo enable Default Config Manager, change 'default_config:' to 'default_config_manager:' in your configuration.yaml then restart Home Assistant.\n\nThis is required for factory startup behaviour. [More information](https://github.com/earto/default_config_manager)."
     },
     "both_enabled": {
       "title": "Incorrect Configuration",
-      "description": "Both Standard and Managed Default Configs are enabled.\n\nPlease remove the standard 'default_config:' from your configuration.yaml then restart Home Assistant. This is required for factory startup behaviour.\n\n[More information](https://github.com/earto/default_config_manager)."
-    },
+      "description": "Both Standard and Managed Default Configs are enabled.\n\nPlease remove the standard 'default_config:' from your configuration.yaml then restart Home Assistant.\n\nThis is required for factory startup behaviour. [More information](https://github.com/earto/default_config_manager)."
     "restart_required": {
       "title": "Restart Required",
       "description": "Changes to enabled integrations have been detected. Restart is required for changes to take effect.",
