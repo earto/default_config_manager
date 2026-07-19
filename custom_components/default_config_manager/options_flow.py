@@ -24,7 +24,7 @@ from .const import (
     MODE_3,
     MODE_DISPLAY,
 )
-from .helpers import get_factory_integrations, get_default_config_version
+from .helpers import get_standard_integrations, get_default_config_version
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -49,13 +49,13 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
             return await self.async_step_init_unmanaged_mode_0(user_input)
         
         if self.mode_code == MODE_1:
-            # Differentiate factory or both in yaml.
+            # Differentiate standard or both in yaml.
             factory_yaml_enabled = "default_config" in self.hass.config.components
             dcm_yaml_enabled = self.hass.data[DOMAIN].get("launched_via_yaml", False)
             
             if factory_yaml_enabled and dcm_yaml_enabled:
                 return await self.async_step_init_unmanaged_mode_1_both(user_input)
-            return await self.async_step_init_unmanaged_mode_1_factory_only(user_input)
+            return await self.async_step_init_unmanaged_mode_1_standard_only(user_input)
             
         return await self.async_step_init_managed(user_input)
 
@@ -63,9 +63,9 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         """Handle landing step for Mode 0 (none in yaml)."""
         return await self._async_unmanaged_base_form(user_input, "init_unmanaged_mode_0")
 
-    async def async_step_init_unmanaged_mode_1_factory_only(self, user_input: dict[str, Any] | None = None):
-        """Handle landing step for Mode 1 (factory default config only)."""
-        return await self._async_unmanaged_base_form(user_input, "init_unmanaged_mode_1_factory_only")
+    async def async_step_init_unmanaged_mode_1_standard_only(self, user_input: dict[str, Any] | None = None):
+        """Handle landing step for Mode 1 (standard default config only)."""
+        return await self._async_unmanaged_base_form(user_input, "init_unmanaged_mode_1_standard_only")
 
     async def async_step_init_unmanaged_mode_1_both(self, user_input: dict[str, Any] | None = None):
         """Handle landing step for Mode 1 (both integrations enabled)."""
@@ -81,8 +81,8 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
 
         hass = self.hass
         default_config_version = await get_default_config_version(hass)
-        factory_integrations = await get_factory_integrations(hass)
-        total_count = len(factory_integrations)
+        standard_integrations = await get_standard_integrations(hass)
+        total_count = len(standard_integrations)
 
         schema_dict = {
             vol.Required(
@@ -131,12 +131,12 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         current_mode_code = MODE_3 if advanced_mode else MODE_2
         
         default_config_version = await get_default_config_version(hass)
-        factory_integrations = await get_factory_integrations(hass)
+        standard_integrations = await get_standard_integrations(hass)
         
-        running_integrations = [integration for integration in factory_integrations if integration in hass.config.components]
+        running_integrations = [integration for integration in standard_integrations if integration in hass.config.components]
         
         running_count = len(running_integrations)
-        total_count = len(factory_integrations)
+        total_count = len(standard_integrations)
         count_text = f"{running_count}/{total_count}"
         integrations_list = ", ".join(running_integrations)
 
