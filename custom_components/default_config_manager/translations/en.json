@@ -33,14 +33,14 @@
           "mode_dropdown": "Error: Default Config Manager is missing from config file. Please add 'default_config_manager:' to configuration.yaml then restart. [More information](https://github.com/earto/default_config_manager)."
         }
       },
-      "init_unmanaged_mode_1_factory_only": {
+      "init_unmanaged_mode_1_standard_only": {
         "title": "Default Config Manager",
         "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}  \nIncluded Integrations: {total_integrations}",
         "data": {
           "mode_dropdown": "Operating Mode"
         },
         "data_description": {
-          "mode_dropdown": "Error: Factory Default Config is enabled. Change 'default_config:' to 'default_config_manager:' in configuration.yaml then restart. [More information](https://github.com/earto/default_config_manager)."
+          "mode_dropdown": "Error: Standard Default Config is enabled. Change 'default_config:' to 'default_config_manager:' in configuration.yaml then restart. [More information](https://github.com/earto/default_config_manager)."
         }
       },
       "init_unmanaged_mode_1_both": {
@@ -90,7 +90,7 @@
       "title": "Missing Configuration",
       "description": "No Default Config is enabled.\n\nTo enable Default Config Manager, add 'default_config_manager:' to configuration.yaml then restart Home Assistant. This is required for factory startup behaviour\n\n[More information](https://github.com/earto/default_config_manager)."
     },
-    "factory_only": {
+    "standard_only": {
       "title": "Incorrect Configuration",
       "description": "Standard Default Config is enabled.\n\nTo enable Default Config Manager, change 'default_config:' to 'default_config_manager:' in your configuration.yaml then restart Home Assistant. This is required for factory startup behaviour\n\n[More information](https://github.com/earto/default_config_manager)."
     },
