@@ -17,7 +17,7 @@ from homeassistant.loader import async_get_integration
 from homeassistant.setup import async_setup_component
 
 from .const import CONF_ADVANCED_MODE, DOMAIN, MODE_0, MODE_1, MODE_2, MODE_3
-from .helpers import get_factory_integrations
+from .helpers import get_standard_integrations
 
 PLATFORMS = [Platform.SENSOR]
 CONFIG_SCHEMA = vol.Schema({DOMAIN: vol.Schema({})}, extra=vol.ALLOW_EXTRA)
@@ -50,7 +50,7 @@ async def _async_sync_manifest(hass: HomeAssistant, entry: ConfigEntry, mode_cod
         
         disabled_integrations = []
         if mode_code == MODE_3:
-            integrations = await get_factory_integrations(hass)
+            integrations = await get_standard_integrations(hass)
             dr_inst = dr.async_get(hass)
             for integration in integrations:
                 dev = dr_inst.async_get_device(identifiers={(DOMAIN, f"{entry.entry_id}_{integration}")})
@@ -111,7 +111,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     launched_via_yaml = DOMAIN in config
     hass.data[DOMAIN]["launched_via_yaml"] = launched_via_yaml
     yaml_config_enabled = "default_config" in config
-    components = await get_factory_integrations(hass)
+    components = await get_standard_integrations(hass)
     
     advanced_mode = False
     disabled_components: list[str] = []
