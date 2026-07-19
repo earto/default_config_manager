@@ -15,10 +15,6 @@
           "mode": "Operating Mode"
         }
       }
-    },
-    "error": {
-      "default_config_enabled": "default_config is enabled in configuration.yaml. Unable to manage integrations.",
-      "advanced_warning": "Advanced mode allows disabling default_config integrations. Use with caution."
     }
   },
   "options": {
