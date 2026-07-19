@@ -24,7 +24,7 @@ from .const import (
     MODE_3,
     MODE_DISPLAY,
 )
-from .helpers import get_static_integrations, get_default_config_version
+from .helpers import get_standard_integrations, get_default_config_version
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -39,33 +39,33 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None):
         """First step dispatcher, reading from established init state."""
-        # Pull the mode that async_setup established
+        # Get mode defined during async_setup
         self.mode_code = self.hass.data[DOMAIN].get(self._config_entry.entry_id, MODE_2)
         
         _LOGGER.debug("options_flow init: resolved mode_code=%s", self.mode_code)
         
-        # Route based on the resolved mode_code
+        # Route based on mode
         if self.mode_code == MODE_0:
             return await self.async_step_init_unmanaged_mode_0(user_input)
         
         if self.mode_code == MODE_1:
-            # Check YAML state to decide which Mode 1 sub-step to show
+            # Differentiate standard or both in yaml.
             factory_yaml_enabled = "default_config" in self.hass.config.components
             dcm_yaml_enabled = self.hass.data[DOMAIN].get("launched_via_yaml", False)
             
             if factory_yaml_enabled and dcm_yaml_enabled:
                 return await self.async_step_init_unmanaged_mode_1_both(user_input)
-            return await self.async_step_init_unmanaged_mode_1_factory_only(user_input)
+            return await self.async_step_init_unmanaged_mode_1_standard_only(user_input)
             
         return await self.async_step_init_managed(user_input)
 
     async def async_step_init_unmanaged_mode_0(self, user_input: dict[str, Any] | None = None):
-        """Handle landing step for Mode 0."""
+        """Handle landing step for Mode 0 (none in yaml)."""
         return await self._async_unmanaged_base_form(user_input, "init_unmanaged_mode_0")
 
-    async def async_step_init_unmanaged_mode_1_factory_only(self, user_input: dict[str, Any] | None = None):
-        """Handle landing step for Mode 1 (factory default config only)."""
-        return await self._async_unmanaged_base_form(user_input, "init_unmanaged_mode_1_factory_only")
+    async def async_step_init_unmanaged_mode_1_standard_only(self, user_input: dict[str, Any] | None = None):
+        """Handle landing step for Mode 1 (standard default config only)."""
+        return await self._async_unmanaged_base_form(user_input, "init_unmanaged_mode_1_standard_only")
 
     async def async_step_init_unmanaged_mode_1_both(self, user_input: dict[str, Any] | None = None):
         """Handle landing step for Mode 1 (both integrations enabled)."""
@@ -81,8 +81,8 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
 
         hass = self.hass
         default_config_version = await get_default_config_version(hass)
-        static_integrations = await get_static_integrations(hass)
-        total_count = len(static_integrations)
+        standard_integrations = await get_standard_integrations(hass)
+        total_count = len(standard_integrations)
 
         schema_dict = {
             vol.Required(
@@ -131,14 +131,14 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
         current_mode_code = MODE_3 if advanced_mode else MODE_2
         
         default_config_version = await get_default_config_version(hass)
-        static_integrations = await get_static_integrations(hass)
+        standard_integrations = await get_standard_integrations(hass)
         
-        running_integrations = [comp for comp in static_integrations if comp in hass.config.components]
+        running_integrations = [integration for integration in standard_integrations if integration in hass.config.components]
         
         running_count = len(running_integrations)
-        total_count = len(static_integrations)
+        total_count = len(standard_integrations)
         count_text = f"{running_count}/{total_count}"
-        components_list = ", ".join(running_integrations)
+        integrations_list = ", ".join(running_integrations)
 
         schema_dict = {
             vol.Required(
@@ -165,7 +165,7 @@ class DefaultConfigManagerOptionsFlow(config_entries.OptionsFlow):
                 "default_config_version": str(default_config_version),
                 "total_integrations": str(total_count),
                 "count_text": str(count_text),
-                "components_list": str(components_list),
+                "integrations_list": str(integrations_list),
             },
         )
 

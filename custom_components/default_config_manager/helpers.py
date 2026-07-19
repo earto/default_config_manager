@@ -14,8 +14,8 @@ from homeassistant.loader import async_get_integration
 _LOGGER = logging.getLogger(__name__)
 
 
-async def get_static_integrations(hass: HomeAssistant) -> List[str]:
-    """Return the list of static default_config integrations."""
+async def get_standard_integrations(hass: HomeAssistant) -> List[str]:
+    """Return the list of standard default_config integrations."""
     try:
         default_config = await async_get_integration(hass, "default_config")
         return sorted(default_config.dependencies)

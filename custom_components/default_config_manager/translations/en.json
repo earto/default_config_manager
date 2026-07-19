@@ -1,7 +1,7 @@
 {
   "config": {
     "abort": {
-      "single_instance_allowed": "Default Config Manager is already installed."
+      "single_instance_allowed": "Default Config Manager is already added."
     },
     "step": {
       "user": {
@@ -15,10 +15,6 @@
           "mode": "Operating Mode"
         }
       }
-    },
-    "error": {
-      "default_config_enabled": "default_config is enabled in configuration.yaml. Unable to manage integrations.",
-      "advanced_warning": "Advanced mode allows disabling default_config integrations. Use with caution."
     }
   },
   "options": {
@@ -30,17 +26,17 @@
           "mode_dropdown": "Operating Mode"
         },
         "data_description": {
-          "mode_dropdown": "Error: Default Config Manager is missing from config file. Please add 'default_config_manager:' to configuration.yaml then restart. [More information](https://github.com/earto/default_config_manager)."
+          "mode_dropdown": "Warning: No Default Config is enabled. Please add 'default_config_manager:' to configuration.yaml. [More information](https://github.com/earto/default_config_manager)."
         }
       },
-      "init_unmanaged_mode_1_factory_only": {
+      "init_unmanaged_mode_1_standard_only": {
         "title": "Default Config Manager",
         "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}  \nIncluded Integrations: {total_integrations}",
         "data": {
           "mode_dropdown": "Operating Mode"
         },
         "data_description": {
-          "mode_dropdown": "Error: Factory Default Config is enabled. Change 'default_config:' to 'default_config_manager:' in configuration.yaml then restart. [More information](https://github.com/earto/default_config_manager)."
+          "mode_dropdown": "Warning: Standard Default Config is enabled. To enable Default Config Manager, change 'default_config:' to 'default_config_manager:' in configuration.yaml. [More information](https://github.com/earto/default_config_manager)."
         }
       },
       "init_unmanaged_mode_1_both": {
@@ -50,7 +46,7 @@
           "mode_dropdown": "Operating Mode"
         },
         "data_description": {
-          "mode_dropdown": "Error: Both 'default_config:' and 'default_config_manager:' are enabled. Remove 'default_config:' from configuration.yaml then restart. [More information](https://github.com/earto/default_config_manager)."
+          "mode_dropdown": "Warning: Only one Default Config should be enabled. Remove 'default_config:' from configuration.yaml. [More information](https://github.com/earto/default_config_manager)."
         }
       },
       "init_managed": {
@@ -59,7 +55,7 @@
         "sections": {
           "integrations_section": {
             "name": "Integrations Running ({count_text})",
-            "description": "{components_list}"
+            "description": "{integrations_list}"
           }
         },
         "data": {
@@ -71,14 +67,14 @@
       },
       "disclaimer": {
         "title": "Advanced Mode Warning",
-        "description": "⚠️ **WARNING:** Advanced mode allows you to disable core components. Do your research as misconfiguration can break core functionality and affect integrations.\n\nPlease confirm if you want to proceed.",
+        "description": "⚠️ **WARNING:** Advanced mode allows you to disable core components. Take care as misconfiguration can break core functionality and integrations. In the event of any problems, select Basic mode to restore factory behaviour. \n\nPlease confirm if you want to proceed.",
         "data": {
           "acknowledge": "I understand the risks, enable Advanced Mode."
         }
       },
       "revert_basic": {
-        "title": "Revert to Managed Mode",
-        "description": "You are switching back to Basic Mode. Any disabled integrations will now be re-enabled.\n\nClick Submit to confirm or X to cancel."
+        "title": "Change to Basic Mode",
+        "description": "You are changing back to Basic Mode. All standard default integrations will now be re-enabled and restored to factory state.\n\nClick Submit to confirm or X to cancel."
       }
     },
     "error": {
@@ -88,19 +84,19 @@
   "issues": {
     "missing_yaml": {
       "title": "Missing Configuration",
-      "description": "Please add 'default_config_manager:' to configuration.yaml and restart Home Assistant.\n\n[More information](https://github.com/earto/default_config_manager)."
+      "description": "No Default Config is enabled.\n\nTo enable Default Config Manager, add 'default_config_manager:' to configuration.yaml then restart Home Assistant.\n\nNOTE: This is required for factory startup behaviour. [More information](https://github.com/earto/default_config_manager)."
     },
-    "factory_only": {
+    "standard_only": {
       "title": "Incorrect Configuration",
-      "description": "Factory Default Config is currently active. Please change 'default_config:' to 'default_config_manager:' in your configuration.yaml and restart Home Assistant.\n\n[More information](https://github.com/earto/default_config_manager)."
+      "description": "Standard Default Config is enabled.\n\nTo enable Default Config Manager, change 'default_config:' to 'default_config_manager:' in your configuration.yaml then restart Home Assistant.\n\nNOTE: This is required for factory startup behaviour. [More information](https://github.com/earto/default_config_manager)."
     },
     "both_enabled": {
       "title": "Incorrect Configuration",
-      "description": "Both 'default_config:' and 'default_config_manager:' are enabled. Please remove 'default_config:' from your configuration.yaml and restart Home Assistant.\n\n[More information](https://github.com/earto/default_config_manager)."
+      "description": "Both Standard and Managed Default Configs are enabled.\n\nPlease remove the standard 'default_config:' from your configuration.yaml then restart Home Assistant.\n\nNOTE: This is required for factory startup behaviour. [More information](https://github.com/earto/default_config_manager)."
     },
     "restart_required": {
       "title": "Restart Required",
-      "description": "Changes to Default Config integrations have been detected. A restart is required for these changes to take effect.",
+      "description": "Changes to enabled integrations have been detected. Restart is required for changes to take effect.",
       "fix_flow": {
         "step": {
           "confirm": {
