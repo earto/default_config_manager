@@ -6,13 +6,13 @@ NAME = "Default Config Manager"
 CONF_ADVANCED_MODE = "advanced_mode"
 
 MODE_0 = 0  # Unmanaged (Missing YAML)
-MODE_1 = 1  # Unmanaged (Factory YAML wins)
+MODE_1 = 1  # Unmanaged (Standard YAML wins)
 MODE_2 = 2  # Managed (Basic)
 MODE_3 = 3  # Managed (Advanced)
 
 MODE_DISPLAY = {
     MODE_0: "None (Not in config file)",
-    MODE_1: "Unmanaged (Factory default_config is enabled)",
+    MODE_1: "Unmanaged (Standard default_config is enabled)",
     MODE_2: "Managed (Basic)",
     MODE_3: "Managed (Advanced)",
 }
