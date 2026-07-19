@@ -18,7 +18,7 @@ from .const import (
     MODE_2,
     MODE_DISPLAY,
 )
-from .helpers import get_default_config_version, get_static_integrations
+from .helpers import get_default_config_version, get_factory_integrations
 from .options_flow import DefaultConfigManagerOptionsFlow
 
 _LOGGER = logging.getLogger(__name__)
@@ -54,7 +54,7 @@ class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 },
             )
 
-        # The Unified Source of Truth: Query the live registry directly
+        # Query the registry for default_config
         yaml_config_enabled = "default_config" in self.hass.config.components
         _LOGGER.debug("default_config loaded by YAML=%s", yaml_config_enabled)
         
@@ -64,9 +64,9 @@ class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         default_config_version = await get_default_config_version(self.hass)
         _LOGGER.debug("default_config version=%s", default_config_version)
 
-        # Generate the CSV list of active integrations for the UI description
-        components = await get_static_integrations(self.hass)
-        active_components_csv = ", ".join(components)
+        # Generate the CSV list of active integrations for the UI
+        integrations = await get_factory_integrations(self.hass)
+        active_integrations_csv = ", ".join(integrations)
 
         return self.async_show_form(
             step_id="user",
@@ -74,6 +74,6 @@ class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             description_placeholders={
                 "default_config_version": default_config_version,
                 "status": mode_display,
-                "active_components": active_components_csv,
+                "active_integrations": active_integrations_csv,
             },
         )
