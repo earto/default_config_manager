@@ -12,7 +12,7 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN, MODE_3
-from .helpers import get_static_integrations
+from .helpers import get_factory_integrations
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -25,20 +25,20 @@ async def async_setup_entry(
     """Set up the Default Config Manager diagnostic sensors."""
     _LOGGER.debug("Initializing Default Config Manager sensor platform")
     
-    # Unified Source of Truth: Check the mode_code stored by __init__.py
+    # Get mode_code stored by __init__.py
     mode_code = hass.data.get(DOMAIN, {}).get(entry.entry_id)
     
     if mode_code != MODE_3:
         _LOGGER.debug("Advanced Mode (Mode 3) not active. Proxy device creation skipped.")
         return
 
-    # Mode 3: Advanced Mode active. Build the proxy devices.
-    components = await get_static_integrations(hass)
+    # Advanced mode enabled, create proxy devices.
+    integrations = await get_factory_integrations(hass)
     entities: list[SensorEntity] = []
 
-    for component in components:
+    for integration in integrations:
         entities.append(
-            DefaultConfigDependencySensor(entry, component)
+            DefaultConfigDependencySensor(entry, integration)
         )
     
     _LOGGER.debug("Adding %s diagnostic entities", len(entities))
@@ -46,25 +46,25 @@ async def async_setup_entry(
 
 
 class DefaultConfigDependencySensor(SensorEntity):
-    """Individual component service sensor."""
+    """Diagnostic sensor for an integration status."""
     _attr_has_entity_name = True
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
-    def __init__(self, entry: ConfigEntry, component: str) -> None:
-        self._component = component
+    def __init__(self, entry: ConfigEntry, integration: str) -> None:
+        self._integration = integration
         self._attr_name = "Status" 
-        self._attr_unique_id = f"{entry.entry_id}_dep_{component}"
+        self._attr_unique_id = f"{entry.entry_id}_dep_{integration}"
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"{entry.entry_id}_{component}")},
-            name=component.replace("_", " ").title(),
+            identifiers={(DOMAIN, f"{entry.entry_id}_{integration}")},
+            name=integration.replace("_", " ").title(),
             manufacturer="Home Assistant Core",
             sw_version=__version__,
             entry_type=DeviceEntryType.SERVICE,
         )
 
     def update(self) -> None:
-        """Check live component registry."""
-        if self._component in self.hass.config.components:
+        """Check running integrations in registry."""
+        if self._integration in self.hass.config.components:
             self._attr_native_value = "Running"
         else:
             self._attr_native_value = "Disconnected"
