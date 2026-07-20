@@ -97,7 +97,7 @@ class Dependents(SensorEntity):
     
     _attr_has_entity_name = True
     _attr_entity_category = EntityCategory.DIAGNOSTIC
-    _attr_icon = "mdi:file-tree"
+    _attr_icon = "mdi:link-variant"
 
     def __init__(
         self, 
