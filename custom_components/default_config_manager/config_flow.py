@@ -9,6 +9,7 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.data_entry_flow import section
 
 from .const import (
     DOMAIN,
@@ -45,8 +46,10 @@ class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         _LOGGER.debug("config_flow async_step_user called, user_input=%s", user_input)
 
         if user_input is not None:
-            # Capture the state of the Advanced Mode checkbox from the form input
-            is_advanced = user_input.get("enable_advanced_mode", False)
+            # Extract from the nested advanced_mode section dictionary
+            advanced_section = user_input.get("advanced_mode", {})
+            is_advanced = advanced_section.get("enable_advanced_mode", False)
+            
             _LOGGER.debug("Creating config entry with options={CONF_ADVANCED_MODE: %s}", is_advanced)
             
             return self.async_create_entry(
