@@ -71,11 +71,15 @@ class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         integrations = await get_standard_integrations(self.hass)
         total_integrations = len(integrations)
 
-        # Show the form with the checkbox and the exact placeholders for en.json
+        # Show the form with the checkbox inside advanced_mode section
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema({
-                vol.Optional("enable_advanced_mode", default=False): bool,
+                vol.Required("advanced_mode"): section(
+                    vol.Schema({
+                        vol.Optional("enable_advanced_mode", default=False): bool,
+                    })
+                ),
             }),
             description_placeholders={
                 "default_config_version": default_config_version,
