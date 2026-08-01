@@ -10,7 +10,7 @@
         "sections": {
           "advanced_mode": {
             "name": "Advanced Mode",
-            "description": "⚠️ **WARNING:** Disabling default_config components can break core functionality. Do your research before disabling integrations. If you experience problems, re-enable integrations or switch back to Basic mode.",
+            "description": "⚠️ WARNING: Disabling default components can break core features. Do your research. If you experience problems, re-enable componenets.",
             "data": {
               "enable_advanced_mode": "I understand the risks, enable Advanced Mode."
             }
