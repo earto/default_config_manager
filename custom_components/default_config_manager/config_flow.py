@@ -1,79 +1,55 @@
-"""config_flow.py for Default Config Manager."""
-
-from __future__ import annotations
-
-from typing import Any
-import logging
+"""Config flow for Default Config Manager."""
 import voluptuous as vol
-
 from homeassistant import config_entries
-from homeassistant.core import callback
-from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import __version__ as ha_version
 
-from .const import (
-    DOMAIN,
-    NAME,
-    CONF_ADVANCED_MODE,
-    MODE_1,
-    MODE_2,
-    MODE_DISPLAY,
-)
-from .helpers import get_default_config_version, get_standard_integrations
-from .options_flow import DefaultConfigManagerOptionsFlow
+# Adjust these imports based on your actual const.py and helpers.py structure
+from .const import DOMAIN, CONF_ADVANCED_MODE
+from .helpers import get_standard_integrations
 
-_LOGGER = logging.getLogger(__name__)
-
-class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
+class DefaultConfigManagerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Default Config Manager."""
 
     VERSION = 1
 
-    @staticmethod
-    @callback
-    def async_get_options_flow(config_entry: ConfigEntry):
-        """Create the options flow."""
-        _LOGGER.debug(
-            "config_flow async_get_options_flow called for entry_id=%s",
-            config_entry.entry_id,
-        )
-        return DefaultConfigManagerOptionsFlow(config_entry)
-
-    async def async_step_user(self, user_input: dict[str, Any] | None = None):
-        """Handle the initial step."""
+    async def async_step_user(self, user_input=None):
+        """Handle the initial setup step."""
+        # Enforce single instance allowed
         if self._async_current_entries():
             return self.async_abort(reason="single_instance_allowed")
-        _LOGGER.debug("config_flow async_step_user called, user_input=%s", user_input)
 
         if user_input is not None:
-            _LOGGER.debug("Creating config entry with options=%s", user_input)
+            # Check the boolean value of the checkbox
+            is_advanced = user_input.get("enable_advanced_mode", False)
+
+            # Create the entry. 
+            # We store the mode in 'options' so it can be changed later via options_flow
             return self.async_create_entry(
-                title=NAME,
+                title="Default Config Manager",
                 data={},
                 options={
-                    CONF_ADVANCED_MODE: False,
-                },
+                    CONF_ADVANCED_MODE: is_advanced
+                }
             )
 
-        # Query the registry for default_config
-        yaml_config_enabled = "default_config" in self.hass.config.components
-        _LOGGER.debug("default_config loaded by YAML=%s", yaml_config_enabled)
-        
-        mode_code = MODE_1 if yaml_config_enabled else MODE_2
-        mode_display = MODE_DISPLAY[mode_code]
-        
-        default_config_version = await get_default_config_version(self.hass)
-        _LOGGER.debug("default_config version=%s", default_config_version)
+        # Retrieve dynamic data for the UI placeholders
+        # We use HA's core version for default_config_version
+        standard_integrations = get_standard_integrations(self.hass)
+        total_integrations = len(standard_integrations)
 
-        # Generate the CSV list of active integrations for the UI
-        integrations = await get_standard_integrations(self.hass)
-        active_integrations_csv = ", ".join(integrations)
+        # Define the schema with the optional checkbox (defaults to unchecked/False)
+        data_schema = vol.Schema(
+            {
+                vol.Optional("enable_advanced_mode", default=False): bool,
+            }
+        )
 
+        # Show the form and pass the exact placeholders mapped in strings.json
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema({}),
+            data_schema=data_schema,
             description_placeholders={
-                "default_config_version": default_config_version,
-                "status": mode_display,
-                "active_integrations": active_integrations_csv,
+                "default_config_version": ha_version,
+                "total_integrations": str(total_integrations),
             },
         )
