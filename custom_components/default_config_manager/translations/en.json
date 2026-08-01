@@ -6,7 +6,10 @@
     "step": {
       "user": {
         "title": "Default Config Manager",
-        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}\n\nStatus: {status}"
+        "description": "Default Config Manager lets you manage the core components normally loaded by Home Assistant's standard [default_config](https://www.home-assistant.io/integrations/default_config/).\n\n[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}\nIncluded Integrations: {total_integrations}\n\n### Operating Modes\n* **Basic Mode (Default):** Automatically manages standard integrations to ensure factory default behavior.\n* **Advanced Mode:** Exposes individual proxy devices and diagnostic entities for each core component.\n\n### Advanced Mode Warning\n⚠️ **WARNING:** Advanced mode allows you to disable core components. Take care as misconfiguration can break core functionality and integrations. In the event of any problems, select Basic mode to restore factory behaviour.",
+        "data": {
+          "enable_advanced_mode": "I understand the risks, enable Advanced Mode."
+        }
       },
       "init": {
         "title": "Default Config Manager",
