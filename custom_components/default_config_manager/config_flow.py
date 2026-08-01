@@ -45,10 +45,9 @@ class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         _LOGGER.debug("config_flow async_step_user called, user_input=%s", user_input)
 
         if user_input is not None:
-            _LOGGER.debug("Creating config entry with options=%s", user_input)
-            
             # Capture the state of the Advanced Mode checkbox
             is_advanced = user_input.get("enable_advanced_mode", False)
+            _LOGGER.debug("Creating config entry with options={CONF_ADVANCED_MODE: %s}", is_advanced)
             
             return self.async_create_entry(
                 title=NAME,
