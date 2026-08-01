@@ -176,6 +176,13 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up from a config entry."""
+    hass.data.setdefault(DOMAIN, {})
+    
+    # If the entry isn't in hass.data, evaluate it now.
+    if entry.entry_id not in hass.data[DOMAIN]:
+        is_advanced = entry.options.get(CONF_ADVANCED_MODE, False)
+        hass.data[DOMAIN][entry.entry_id] = MODE_3 if is_advanced else MODE_2
+    
     mode = hass.data[DOMAIN].get(entry.entry_id, MODE_2)
     
     if mode != MODE_3:
@@ -202,7 +209,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.bus.async_listen(dr.EVENT_DEVICE_REGISTRY_UPDATED, sync_on_registry_change)
     )
     return True
-
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
