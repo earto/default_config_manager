@@ -1,12 +1,12 @@
 {
   "config": {
     "abort": {
-      "single_instance_allowed": "Default Config Manager is already added."
+      "single_instance_allowed": "Default Config Manager has been added already."
     },
     "step": {
       "user": {
         "title": "Default Config Manager",
-        "description": "Default Config Manager lets you manage the core components normally loaded by Home Assistant's standard [default_config](https://www.home-assistant.io/integrations/default_config/).\n\n[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}\nIncluded Integrations: {total_integrations}\n\n### Operating Modes\n* **Basic Mode (Default):** Automatically manages standard integrations to ensure factory default behavior.\n* **Advanced Mode:** Exposes individual proxy devices and diagnostic entities for each core component.\n\n### Advanced Mode Warning\n⚠️ **WARNING:** Advanced mode allows you to disable core components. Take care as misconfiguration can break core functionality and integrations. In the event of any problems, select Basic mode to restore factory behaviour.",
+        "description": "Default Config Manager allows you to manage the core [default_config](https://www.home-assistant.io/integrations/default_config/) components loaded by Home Assistant during boot up.\n\n[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}\nIncluded Integrations: {total_integrations}\n\n### Operating Modes\n* **Basic Mode (Default):** Automatically manages standard integrations to ensure factory default behavior.\n* **Advanced Mode:** Exposes individual proxy devices and diagnostic entities for each core component.\n\n### Advanced Mode Warning\n⚠️ **WARNING:** Advanced mode allows you to disable core components. Take care as misconfiguration can break core functionality and integrations. In the event of any problems, select Basic mode to restore factory behaviour.",
         "data": {
           "enable_advanced_mode": "I understand the risks, enable Advanced Mode."
         }
