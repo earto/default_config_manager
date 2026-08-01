@@ -6,11 +6,11 @@
     "step": {
       "user": {
         "title": "Default Config Manager",
-        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}\nIncluded Integrations: {total_integrations}\n\nDefault Config Manager allows you to manage default_config components without sacrificing automatic updates. It uses the built-in component list and preserves the native start-up mechanism, ensuring components load as intended.\n\nUse Advanced Mode to disable individual components.",
+        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}\nIncluded Integrations: {total_integrations}\n\nDefault Config Manager allows you to manage default_config components without sacrificing automatic updates. It uses the built-in component list and preserves the native start-up mechanism.",
         "sections": {
           "advanced_mode": {
             "name": "Advanced Mode",
-            "description": "⚠️ WARNING: Disabling default components can break core features. Do your research. If you experience problems, re-enable componenets.",
+            "description": "⚠️ WARNING: Advanced Mode allows disabling of individual components which  can break core features. Do your research and if you experience problems, re-enable the componenets.",
             "data": {
               "enable_advanced_mode": "I understand the risks, enable Advanced Mode."
             }
