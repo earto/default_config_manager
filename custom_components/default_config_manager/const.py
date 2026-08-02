@@ -20,7 +20,7 @@ MODE_DISPLAY = {
 # Config-file states, only used in config_flow.py
 CONFIG_STATE_MODE_0 = "mode_0" # Missing YAML
 CONFIG_STATE_MODE_1_STANDARD_ONLY = "mode_1_standard_only" # Standard YAML
-CONFIG_STATE_MODE_1_BOTH = "mode_1_both" # Standard YAML wins
+CONFIG_STATE_MODE_1_BOTH = "mode_1_both" # Standard and DCM YAML
 CONFIG_STATE_CORRECT = "correct" # Only DCM in YAML
 
 CONFIG_FILE_STATE_DISPLAY = {
