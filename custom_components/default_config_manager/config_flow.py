@@ -64,16 +64,15 @@ class DefaultConfigManagerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         default_config_version = await get_default_config_version(self.hass)
         _LOGGER.debug("default_config version=%s", default_config_version)
 
-        # Generate the CSV list of active integrations for the UI
+        # Get the standard integrations to count them for the UI
         integrations = await get_standard_integrations(self.hass)
-        active_integrations_csv = ", ".join(integrations)
+        total_integrations = len(integrations)
 
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema({}),
             description_placeholders={
                 "default_config_version": default_config_version,
-                "status": mode_display,
-                "active_integrations": active_integrations_csv,
+                "total_integrations": str(total_integrations),
             },
         )
