@@ -41,7 +41,7 @@
           "config_file_state": "Config File State"
         },
         "data_description": {
-          "config_file_state": "Default Config Manager is configured correctly. No action is required. [More information](https://github.com/earto/default_config_manager)."
+          "config_file_state": "Default Config Manager is configured correctly. [More information](https://github.com/earto/default_config_manager)."
         }
       }
     }
