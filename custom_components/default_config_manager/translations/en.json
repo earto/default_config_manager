@@ -6,7 +6,7 @@
     "step": {
       "user": {
         "title": "Default Config Manager",
-        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}\nIncluded Integrations: {total_integrations}\n\nDefault Config Manager allows you to manage default_config components without sacrificing automatic updates. It uses the built-in component list and preserves the native start-up mechanism.""
+        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}\nIncluded Integrations: {total_integrations}\n\nDefault Config Manager allows you to manage default_config components without sacrificing automatic updates. It uses the built-in component list and preserves the native start-up mechanism."
       },
       "init": {
         "title": "Default Config Manager",
