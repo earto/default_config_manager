@@ -174,14 +174,21 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     return True
 
 
+async def _async_promote_to_advanced(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Reload a freshly created entry into Advanced Mode."""
+    hass.data[DOMAIN][entry.entry_id] = MODE_3
+    await hass.config_entries.async_reload(entry.entry_id)
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up from a config entry."""
     hass.data.setdefault(DOMAIN, {})
     
     # If the entry isn't in hass.data, evaluate it now.
-    if entry.entry_id not in hass.data[DOMAIN]:
-        is_advanced = entry.options.get(CONF_ADVANCED_MODE, False)
-        hass.data[DOMAIN][entry.entry_id] = MODE_3 if is_advanced else MODE_2
+    first_time_setup = entry.entry_id not in hass.data[DOMAIN]
+    if first_time_setup:
+        # Don't enable advanced-mode yet
+        hass.data[DOMAIN][entry.entry_id] = MODE_2
     
     mode = hass.data[DOMAIN].get(entry.entry_id, MODE_2)
     
@@ -190,6 +197,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(update_listener))
+    
+    if first_time_setup and entry.options.get(CONF_ADVANCED_MODE, False):
+        hass.async_create_task(_async_promote_to_advanced(hass, entry))
     
     async def sync_on_boot(_): 
         await _async_sync_manifest(hass, entry, hass.data[DOMAIN].get(entry.entry_id, MODE_2))
