@@ -36,12 +36,12 @@
       },
       "user_correct": {
         "title": "Default Config Manager",
-        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}\nIncluded Integrations: {total_integrations}\n\nWith Default Config Manager, you can selectively disable default_config components without losing future updates or breaking Home Assistant's native boot mechanism.\n\n**NOTE:** To disable components, enable Advanced mode in settings. [More information](https://github.com/earto/default_config_manager).",
+        "description": "[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}\nIncluded Integrations: {total_integrations}\n\nWith Default Config Manager, you can selectively disable default_config components without losing future updates or breaking Home Assistant's native boot mechanism.\n\n**NOTE:** To disable components, use Advanced Mode in settings.",
         "data": {
           "config_file_state": "Config File State"
         },
         "data_description": {
-          "config_file_state": "Config file is correct."
+          "config_file_state": "Config file is correct. [More information](https://github.com/earto/default_config_manager)."
         }
       }
     }
