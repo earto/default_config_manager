@@ -24,8 +24,8 @@ CONFIG_STATE_MODE_1_BOTH = "mode_1_both" # Standard and DCM YAML
 CONFIG_STATE_CORRECT = "correct" # Only DCM in YAML
 
 CONFIG_FILE_STATE_DISPLAY = {
-    CONFIG_STATE_MODE_0: "None (Not in config file)",
-    CONFIG_STATE_MODE_1_STANDARD_ONLY: "Unmanaged (Standard default_config is enabled)",
-    CONFIG_STATE_MODE_1_BOTH: "Unmanaged (Both default_config and default_config_manager present)",
-    CONFIG_STATE_CORRECT: "Managed (default_config_manager correctly configured)",
+    CONFIG_STATE_MODE_0: "INVALID: No default config",
+    CONFIG_STATE_MODE_1_STANDARD_ONLY: "INVALID: default_config is enabled",
+    CONFIG_STATE_MODE_1_BOTH: "INVALID: default_config AND default_config_manager",
+    CONFIG_STATE_CORRECT: "VALID: default_config_manager is enabled",
 }
