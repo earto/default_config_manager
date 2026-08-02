@@ -36,12 +36,12 @@
       },
       "user_correct": {
         "title": "Default Config Manager",
-        "description": "Default Config Manager allows you to selectively disable default components while retaining default_config updates and Home Assistant's native boot mechanism. To disable components, enable Advanced Mode in settings.\n\n[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}\nIncluded Components: {total_integrations}",
+        "description": "Default Config Manager allows you to selectively disable default components while retaining default_config updates and Home Assistant's native boot mechanism. To disable components, enable Advanced Mode in the settings menu.\n\n[Default Config](https://www.home-assistant.io/integrations/default_config/) Version: {default_config_version}\nIncluded Components: {total_integrations}",
         "data": {
           "config_file_state": "Config File State"
         },
         "data_description": {
-          "config_file_state": "Default Config Manager is configured correctly. [More information](https://github.com/earto/default_config_manager)."
+          "config_file_state": "Configuration.yaml is configured correctly. [More information](https://github.com/earto/default_config_manager)."
         }
       }
     }
